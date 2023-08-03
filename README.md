@@ -29,10 +29,10 @@ O Sistema de Gerenciamento de Eventos (SGE) para a Universidade Federal de Campi
 
 ## HASKEll
 
-- [] TODO
+- [ ] TODO
 
 ## PROLOG
 
-- [] TODO
+- [ ] TODO
 
 ## Demonstração
