@@ -1,68 +1,80 @@
-module Usuario (
-    Usuario(Usuario),
-    Usuarios(Usuarios),
-    escreverArquivoUsuario,
-    getUsuariosEmLista,
-    getMatriculaUsuario,
-    escreverAgendamentoUsuario,
-    iteraAgendamentosUsuario,
-    getAgendamentosMatriculaUsuario
-    
-) where
+module Models.Usuario where
 
-import Agendamento(
-    getAgendamentoPeloIdLocal,
-    getAgendamentos,
-    Agendamentos,
-    Agendamento(Agendamento)
-)
+import Data.Csv
+import qualified Data.Vector as Data.Vector
+import qualified Data.ByteString.Lazy as BL
+import Models.Evento
 
-import System.IO
-import Utils
-import System.IO.Unsafe
+data Usuario = Usuario
+    { matriculaUsuario :: String
+    , nomeUsuario :: String
+    , senhaUsuario :: String
+    , eventosUsuario :: [Evento]
+    } deriving (Show, Eq)
 
-data Usuario = Usuario{
-    nome :: String,
-    matricula :: String,
-    agendamentos :: [Agendamento]
-} deriving (Show, Read)
+instance ToNamedRecord Usuario
+instance FromNamedRecord Usuario
+instance DefaultOrdered Usuario
 
-data Usuarios = Usuarios{
-    usuarios :: [(String, Usuario)]
-} deriving Show
+-- Função para criar um novo usuário com matrícula única
+criarUsuario :: String -> String -> String -> FilePath -> IO (Maybe Usuario)
+criarUsuario matricula nome senha filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    matriculasExistentes <- lerMatriculasDeCSV filePath
+    if matricula `elem` matriculasExistentes
+        then return Nothing
+        else do
+            let novoUsuario = Usuario matricula nome senha []
+            salvarUsuarioCSV novoUsuario filePath
+            return (Just novoUsuario)
 
+-- Função para atualizar um usuário no arquivo CSV
+atualizarUsuarioCSV :: Usuario -> [Usuario] -> FilePath -> IO ()
+atualizarUsuarioCSV usuario usuarios filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    let usuariosAtualizados = map (\u -> if matriculaUsuario u == matriculaUsuario usuario
+                                            then usuario
+                                            else u) usuarios
+    salvarUsuarioCSV (head usuariosAtualizados) filePath
 
----- getters ----
-getMatriculaUsuario :: Usuario -> String
-getMatriculaUsuario (Usuario {matricula= m}) = m
-getUsuariosFromTuple :: [(String, Usuario)] -> [Usuario]
-getUsuariosFromTuple [] = []
-getUsuariosFromTuple ((_,m): ms) = m : getUsuariosFromTuple as
+-- Função para inscrever em evento
+inscreverEmEvento :: Usuario -> Evento -> FilePath -> IO (Maybe Usuario)
+inscreverEmEvento usuario evento filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    usuarios <- carregarUsuariosDeCSV filePath
+    let usuarioAtualizado = usuario { eventosUsuario = evento : eventosUsuario usuario }
+    atualizarUsuarioCSV usuarioAtualizado usuarios filePath
+    return (Just usuarioAtualizado)
 
-getUsuariosEmLista :: Usuarios -> [Usuario]
-getUsuarios (Usuarios {usuarios = u}) = getUsuariosFromTuple u
+-- Função para desinscrever de evento
+desinscreverDeEvento :: Usuario -> Evento -> FilePath -> IO (Maybe Usuario)
+desinscreverDeEvento usuario evento filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    usuarios <- carregarUsuariosDeCSV filePath
+    let eventosAtualizados = filter (/= evento) (eventosUsuario usuario)
+    let usuarioAtualizado = usuario { eventosUsuario = eventosAtualizados }
+    atualizarUsuarioCSV usuarioAtualizado usuarios filePath
+    return (Just usuarioAtualizado)
 
-getAgendamentosUsuario :: Usuario -> [Agendamento]
-getAgendamentosUsuario Usuario {agendamentos = a} = a
+-- Função para salvar um usuário no arquivo CSV
+salvarUsuarioCSV :: Usuario -> FilePath -> IO ()
+salvarUsuarioCSV usuario filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    let csvData = encodeDefaultOrderedByName [usuario]
+    BL.writeFile filePath csvData
+-- Função para carregar usuários do arquivo CSV
+-- Função para carregar usuários do arquivo CSV
+carregarUsuariosDeCSV :: FilePath -> IO [Usuario]
+carregarUsuariosDeCSV filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    csvData <- BL.readFile filePath
+    case decode NoHeader csvData of
+        Left _ -> return []
+        Right usuarios -> return (Data.Vector.toList usuarios)
 
----- escrita ----
-
-mapeiaMatricula :: [Usuario] -> [(String, Usuario)]
-mapeia [] = []
-mapeia (m:ms) = (getMatricula m, m) : mapeiaMatricula ms
-
-
-adicionaAgendamentoUsuario :: Usuario -> Agendamento -> Usuario
-adicionaAgendamentoUsuario user novoAgendamento =
-    user { agendamentos = novoAgendamento : agendamentos user }
-
-getAgendamentosToCsv :: [Agendamento] -> String
-getAgendamentosToCsv [] = []
-getAgendamentosToCsv (u:us) = if lenght agendamentoUsuario > 0 then getMatricula u ++ "," ++ getAgendamentosToString (agendamentoUsuario) ++ getAgendamentosToCsv cs 
-    else []
-    where
-        agendamentoUsuario = getAgendamentosUsuario u
-
-getAgendamentosToString :: [Agendamento] -> String
-getAgendamentosToString [] = []
-
+-- Função para ler as matrículas de usuários a partir de um arquivo CSV
+lerMatriculasDeCSV :: FilePath -> IO [String]
+lerMatriculasDeCSV filePath = do
+    let filePath = "Arquivos/Usuarios.csv"
+    usuarios <- carregarUsuariosDeCSV filePath
+    return (map matriculaUsuario usuarios)

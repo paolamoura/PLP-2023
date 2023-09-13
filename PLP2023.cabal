@@ -29,8 +29,13 @@ executable PLP2023
     other-modules:
         Utils.Gum
         Menu.MenuPrincipal
+        Models.Horario
+        Models.Local
+        Models.Usuario
+        Models.Evento
         Text.CSV
-        Login.ValidaLogin
+        Login.CadastraLogin
+    
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -38,6 +43,10 @@ executable PLP2023
         base >=4.12,
         text >= 1.2 && < 1.3,
         csv >= 0.1 && < 0.2,
+        cassava,
+        directory,
+        csv-conduit >= 0.7 && < 0.8,
+        vector,
         bytestring >= 0.11 && < 0.12,
         filepath >= 1.4 && < 1.5
     hs-source-dirs:   ./
