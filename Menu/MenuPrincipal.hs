@@ -1,14 +1,16 @@
-module Menu where
-
+module Menu.MenuPrincipal where
+-- Chamada do LoginService
+import Login
 import Utils.Gum
-import Data.Char
+    ( gum, GumCommand(Input), GumFlag(FlagWithArg, Flag) )
+import Data.Char ( isSpace )
 
 solicitarLogin :: IO ()
 solicitarLogin = do
     username <- gum (Input [FlagWithArg "--prompt" "Usuário: ", FlagWithArg "--placeholder" "..."])
     senha <- gum (Input [FlagWithArg "--prompt" "Senha: ", Flag "--password"])
-    -- Chamada do LoginService
     -- fazerLogin username senha
+    fazerLogin username senha
     return ()
 
 solicitarCadastro :: IO ()
@@ -17,8 +19,8 @@ solicitarCadastro = do
     username <- gum (Input [FlagWithArg "--prompt" "Usuário: ", FlagWithArg "--placeholder" "..."])
     senha <- gum (Input [FlagWithArg "--prompt" "Senha: "])
     confirmSenha <- gum (Input [FlagWithArg "--prompt" "Confirmar Senha: "])
-    -- Chamada do LoginService
     -- fazerCadastro matricula username senha confirmSenha
+    fazerCadastro matricula username senha confirmSenha
     return ()
 
 selecionarAcao :: String -> IO ()
@@ -28,4 +30,3 @@ selecionarAcao escolha
     | trim escolha == "Sair" = return()
     where
         trim = filter (not . isSpace)
-
