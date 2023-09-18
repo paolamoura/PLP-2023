@@ -29,11 +29,7 @@ executable PLP2023
     other-modules:
         Utils.Gum
         Menu.MenuPrincipal
-        Models.Horario
-        Models.Local
         Models.Usuario
-        Models.Evento
-        Text.CSV
         Login.CadastraLogin
     
 
@@ -47,6 +43,9 @@ executable PLP2023
         directory,
         csv-conduit >= 0.7 && < 0.8,
         vector,
+        split,
+        process,
+        parsec,
         bytestring >= 0.11 && < 0.12,
         filepath >= 1.4 && < 1.5
     hs-source-dirs:   ./
