@@ -1,6 +1,7 @@
 module Utils.Gum where
 
 import System.Process
+import Data.Char (isSpace)
 
 data GumFlag
     = Flag String
@@ -19,7 +20,7 @@ data GumCommand
 
 gum :: GumCommand -> IO String
 gum command = do
-    case command of
+    output <- case command of
         Choose options flags -> readProcess "gum" (constructArgs "choose" options flags) ""
         Confirm message flags -> readProcess "gum" (constructArgs "confirm" [message] flags) ""
         Filter items flags -> readProcess "gum" (constructArgs "filter" items flags) ""
@@ -28,11 +29,17 @@ gum command = do
         Join delimiter items flags -> readProcess "gum" (constructArgs "join" (delimiter : items) flags) ""
         Style flags -> readProcess "gum" (constructArgs "style" [] flags) ""
         Write flags -> readProcess "gum" (constructArgs "write" [] flags) ""
-    where
-        constructArgs :: String -> [String] -> [GumFlag] -> [String]
-        constructArgs cmd options flags =
-            cmd : concatMap flagToArgs flags ++ filter (not . null) options
 
-        flagToArgs :: GumFlag -> [String]
-        flagToArgs (Flag flagName) = [flagName]
-        flagToArgs (FlagWithArg flagName arg) = [flagName, arg]
+    return (trimOutput output)
+
+-- Função para fazer o trim do output
+trimOutput :: String -> String
+trimOutput = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+
+constructArgs :: String -> [String] -> [GumFlag] -> [String]
+constructArgs cmd options flags =
+    cmd : concatMap flagToArgs flags ++ filter (not . null) options
+
+flagToArgs :: GumFlag -> [String]
+flagToArgs (Flag flagName) = [flagName]
+flagToArgs (FlagWithArg flagName arg) = [flagName, arg]
