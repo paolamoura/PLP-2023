@@ -31,6 +31,8 @@ executable PLP2023
         Menu.MenuPrincipal
         Models.Usuario
         Login.CadastraLogin
+        Local.Local
+        Local.Util
     
 
     -- LANGUAGE extensions used by modules in this package.
