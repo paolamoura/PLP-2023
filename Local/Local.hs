@@ -24,7 +24,7 @@ import System.Process
 import Control.Monad (when)
 import Text.Printf
 import Data.List
-import Haskell.Agenda2 --import da agenda que criamos
+import Local.Agenda --import da agenda que criamos
 
 data Local = Local {
     --idLocal :: Int,
