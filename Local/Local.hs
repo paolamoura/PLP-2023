@@ -1,4 +1,4 @@
-module Haskell.Local (Local(Local), Locais(Locais),
+module Local.Local (Local(Local), Locais(Locais),
     --getIdLocal,
     getCapacidadeLocal,
     getLocais,
