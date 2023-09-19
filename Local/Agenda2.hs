@@ -249,3 +249,19 @@ atualiza nome dia hora responsavel = do
     if success
         then putStrLn "CSV atualizado com sucesso."
         else putStrLn "Falha na atualização do CSV."
+
+--------- Para a Prioridade com Matriculas ----------
+--import Data.List (sortOn)
+
+-- Função para extrair os quatro primeiros caracteres de uma string
+--primeirosQuatroChars :: String -> String
+--primeirosQuatroChars = take 4
+
+--main :: IO ()
+--main = do
+--    putStrLn "Digite uma lista de números como strings (separados por espaços):"
+--    input <- getLine
+--    let listaStrings = words input  -- Converte a entrada em uma lista de strings
+--    let listaOrdenada = sortOn primeirosQuatroChars listaStrings  -- Ordena usando os quatro primeiros caracteres
+--    putStrLn "Lista ordenada:"
+--    mapM_ putStrLn listaOrdenada  -- Imprime a lista ordenada linha por linha
