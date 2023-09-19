@@ -80,7 +80,7 @@ localToString Local {nomeLocal = n, recursosLocal = r, capacidadeLocal = c} = "N
 writeArquivoLocal :: Local -> IO()
 writeArquivoLocal local = do
     arq <- openFile "Locais.csv" AppendMode
-    arq1 <- openFile "RecursosLocal.csv" AppendMode
+    arq1 <- openFile "RecursosLocais.csv" AppendMode
 
     print local -- mudar isso, mas fazer depois
 

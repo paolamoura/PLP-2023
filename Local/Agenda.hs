@@ -88,7 +88,7 @@ writeAgendaLocal nome = do
     geraAgenda csvFilePath
 
 geraAgenda :: String -> IO ()
-geraAgenda nome = do
+geraAgenda nomeLocal = do
     let year = fromIOInteger getCurrentYear
     let months = [fromIOInt getCurrentMonth..12]
     let day = fromIOInt getCurrentDay
@@ -106,7 +106,7 @@ geraAgenda nome = do
     let finalCsvContent = BL.fromStrict header <> csvContent
 
     -- Escreva o conteúdo no arquivo
-    BL.writeFile (nome ++ "Agenda.csv") finalCsvContent
+    BL.writeFile (nomeLocal ++ "Agenda.csv") finalCsvContent
 
     putStrLn "Arquivo CSV da agenda gerado com sucesso!"
 
@@ -204,8 +204,8 @@ adicionarElemento novoElemento lista =
     insertionSortByFourDigits (lista ++ [novoElemento])
 
 aloca :: String -> String -> String -> String -> IO ()
-aloca nome dia hora responsavel = do
-    let fileName = nome ++ "Agenda.csv"
+aloca nomeLocal dia hora responsavel = do
+    let fileName = nomeLocal ++ "Agenda.csv"
     success <- alocaUpdateCSV fileName dia hora responsavel
     if success
         then putStrLn "CSV atualizado com sucesso."
@@ -220,8 +220,8 @@ parseData = parseTimeM True defaultTimeLocale "%d-%m-%Y"
 
 -- Função para obter a agenda para os próximos trinta dias
 obterAgendaParaProximosTrintaDias :: String -> IO [AgendaEntry]
-obterAgendaParaProximosTrintaDias nome = do
-    let fileName = nome ++ "Agenda.csv"
+obterAgendaParaProximosTrintaDias nomeLocal = do
+    let fileName = nomeLocal ++ "Agenda.csv"
 
     -- Obter a data atual
     dataAtual <- getCurrentDate
@@ -295,8 +295,8 @@ desalocaUpdateCSV fileName targetDate targetTime targetResponsavel = do
 
 
 desaloca :: String -> String -> String -> String -> IO ()
-desaloca nome dia hora responsavel = do
-    let fileName = nome ++ "Agenda.csv"
+desaloca nomeLocal dia hora responsavel = do
+    let fileName = nomeLocal ++ "Agenda.csv"
     success <- desalocaUpdateCSV fileName dia hora responsavel
     if success
         then putStrLn "CSV atualizado com sucesso."
