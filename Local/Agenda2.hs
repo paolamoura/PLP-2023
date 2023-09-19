@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Haskell.Agenda2 (AgendaEntry(AgendaEntry), geraAgenda, atualiza, writeAgendaLocal)where
+module  Local.Agenda2 (AgendaEntry(AgendaEntry), geraAgenda, atualiza, writeAgendaLocal)where
 
 import Data.Csv
 import qualified Data.ByteString.Lazy as BL
