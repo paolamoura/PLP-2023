@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Models.Evento (
-    Evento(Evento),
+    Evento(..),
     criarEvento,
     inscreverParticipante,
     desinscreverParticipante
@@ -97,62 +97,77 @@ instance FromRecord Evento where
         | otherwise = fail "Invalid record length"
 
 -- Função para criar um novo evento
-criarEvento :: String -> String -> String -> Day -> String -> Int -> IO ()
+criarEvento :: String -> String -> String -> Day -> String -> Int -> IO Bool
 criarEvento n i l d h capacidade = do
     let vagas = "0/" ++ show capacidade
-    let evento = Evento n i l d h [] capacidade vagas
+    let novoEvento = Evento n i l d h [] capacidade vagas
     let fileName = "./Arquivos/Eventos.csv"
-    writeEventoCSV fileName evento
+    eventos <- readEventoCSV fileName
+    if eventoComNomeExiste n eventos
+        then return False  -- Evento com o mesmo nome já existe
+        else do
+            let eventosAtualizados = novoEvento : eventos
+            writeEventosCSV fileName eventosAtualizados
+            return True  -- Evento criado com sucesso
+
+-- Verifica se um evento com o mesmo nome já existe
+eventoComNomeExiste :: String -> [Evento] -> Bool
+eventoComNomeExiste nomeEvento eventos =
+    any (\evento -> nome evento == nomeEvento) eventos
 
 -- Função para inscrever um participante em um evento
 inscreverParticipante :: String -> String -> IO Bool
 inscreverParticipante nomeEvento participante = do
     let fileName = "./Arquivos/Eventos.csv"
     eventos <- readEventoCSV fileName
-    case eventos of
-        [] -> return False  -- Evento não encontrado
-        [evento] -> do
+    let eventoEncontrado = find (\evento -> nome evento == nomeEvento) eventos
+    case eventoEncontrado of
+        Nothing -> return False  -- Evento não encontrado
+        Just evento -> do
             let capacidadeAtual = capacidade evento
             let inscritosAtuais = inscritos evento
-            if length inscritosAtuais < capacidadeAtual
+            if length inscritosAtuais < capacidadeAtual && participante `notElem` inscritosAtuais
                 then do
                     let novosInscritos = participante : inscritosAtuais
                     let novasVagas = show (length novosInscritos) ++ "/" ++ show capacidadeAtual
                     let novoEvento = evento { inscritos = novosInscritos, vagas = novasVagas }
-                    writeEventoCSV fileName novoEvento
+                    let eventosAtualizados = map (\e -> if nome e == nomeEvento then novoEvento else e) eventos
+                    writeEventosCSV fileName eventosAtualizados
                     return True  -- Inscrito com sucesso
-                else return False  -- Capacidade excedida
+                else return False  -- Capacidade excedida ou participante já inscrito-- Capacidade excedida
 
 -- Função para desinscrever um participante de um evento
 desinscreverParticipante :: String -> String -> IO Bool
 desinscreverParticipante nomeEvento participante = do
     let fileName = "./Arquivos/Eventos.csv"
-    evento <- readEventoCSV fileName
-    case evento of
-        [] -> return False  -- Evento não encontrado
-        [e] -> do
-            let inscritosAtuais = inscritos e
+    eventos <- readEventoCSV fileName
+    let eventoEncontrado = find (\evento -> nome evento == nomeEvento) eventos
+    case eventoEncontrado of
+        Nothing -> return False  -- Evento não encontrado
+        Just evento -> do
+            let inscritosAtuais = inscritos evento
             if participante `elem` inscritosAtuais
                 then do
                     let novosInscritos = filter (/= participante) inscritosAtuais
-                    let novasVagas = show (length novosInscritos) ++ "/" ++ show (capacidade e)
-                    let novoEvento = e { inscritos = novosInscritos, vagas = novasVagas }
-                    writeEventoCSV fileName novoEvento
+                    let novasVagas = show (length novosInscritos) ++ "/" ++ show (capacidade evento)
+                    let novoEvento = evento { inscritos = novosInscritos, vagas = novasVagas }
+                    let eventosAtualizados = map (\e -> if nome e == nomeEvento then novoEvento else e) eventos
+                    writeEventosCSV fileName eventosAtualizados
                     return True  -- Desinscrito com sucesso
-            else return False  -- Participante não encontrado na lista de inscritos
+                else return False  -- Participante não encontrado na lista de inscritos
 
 -- Função para ler todos os eventos de um arquivo CSV
 readEventoCSV :: FilePath -> IO [Evento]
 readEventoCSV fileName = do
     csvData <- BL.readFile fileName
-    case decode HasHeader csvData of  -- Corrigido para usar HasHeader
+    case decode HasHeader csvData of
         Left _ -> return []
         Right eventos -> return (V.toList eventos)
 
--- Função para escrever um evento em um arquivo CSV
-writeEventoCSV :: FilePath -> Evento -> IO ()
-writeEventoCSV fileName evento = do
+-- Função para escrever uma lista de eventos em um arquivo CSV
+writeEventosCSV :: FilePath -> [Evento] -> IO ()
+writeEventosCSV fileName eventos = do
     let header = B8.pack "Nome,Instituicao,Local,DataEvento,Hora,Inscritos,Capacidade,Vagas\n"
-    let csvContent = encode [evento]
+    let csvContent = encode eventos
     let finalCsvContent = BL.fromStrict header <> csvContent
     BL.writeFile fileName finalCsvContent
