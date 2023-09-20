@@ -1,7 +1,12 @@
 module Utils.Gum where
 
 import System.Process
+import System.IO
 import Data.Char (isSpace)
+import Data.Maybe
+import qualified Data.ByteString.Lazy as BL
+import Data.Csv
+import qualified Data.Vector as V
 
 data GumFlag
     = Flag String
@@ -43,3 +48,45 @@ constructArgs cmd options flags =
 flagToArgs :: GumFlag -> [String]
 flagToArgs (Flag flagName) = [flagName]
 flagToArgs (FlagWithArg flagName arg) = [flagName, arg]
+
+-- Função para executar um comando com entrada redirecionada e saída para o terminal atual.
+runCommandWithInput :: String -> String -> IO String
+runCommandWithInput cmd input = do
+    (stdin, stdout, _, processHandle) <- createProcess (shell cmd) {
+        std_in = CreatePipe,
+        std_out = CreatePipe,
+        std_err = Inherit
+    }
+    hPutStr (fromJust stdin) input
+    hClose (fromJust stdin)
+    output <- hGetContents (fromJust stdout)
+    _ <- waitForProcess processHandle
+    return output
+
+-- Função para executar o comando Gum Table com um arquivo de caminho especificado.
+gumTable :: String -> IO String
+gumTable filePath = do
+    let cmd = "gum table -w 10 -w 5 < " ++ filePath
+    runCommandWithInput cmd ""
+
+data DadosCSV = DadosCSV
+    { dataCampo :: String
+    , horaCampo :: String
+    , disponibilidadeCampo :: String
+    , responsavelCampo :: String
+    , listaEsperaCampo :: String
+    } deriving (Show)
+
+-- Função para extrair os dados da linha do CSV
+extrairDados :: BL.ByteString -> Maybe DadosCSV
+extrairDados csvData = do
+    let decoded = decode NoHeader csvData :: Either String (V.Vector String)
+    case decoded of
+        Left err -> do
+            Nothing
+        Right row -> do
+            case V.toList row of
+                [dataStr, horaStr, disponibilidadeStr, responsavelStr, listaEsperaStr] ->
+                    Just $ DadosCSV dataStr horaStr disponibilidadeStr responsavelStr listaEsperaStr
+                _ -> do
+                    Nothing

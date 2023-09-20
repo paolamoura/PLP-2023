@@ -28,10 +28,12 @@ executable PLP2023
     -- Modules included in this executable, other than Main.
     other-modules:
         Utils.Gum
+        Utils.CSVParser
         Menu.MenuPrincipal
         Models.Usuario
         Models.UsuarioInstituicao
         Services.CriarLocalService
+        Services.AlocarHorarioService
         Login.CadastraLogin
         Login.CadastraLoginInstituicao
         Local.Local

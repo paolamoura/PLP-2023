@@ -5,10 +5,11 @@ module Local.Local (Local(Local), Locais(Locais),
     getLocaisFromList,
     getLocaisFromLista,
     getLocaisPuros,
+    getNomesLocais,
     --getLocalPeloId,
     localToString,
     getNomeLocal,
-    getRecursosList,
+    -- getRecursosList,
     getRecursosLocal,
     getRecursosLocais,
     getRecursosLocalToString,
@@ -25,6 +26,14 @@ import Control.Monad (when)
 import Text.Printf
 import Data.List
 import Local.Agenda --import da agenda que criamos
+import qualified Data.Text.IO as TIO
+import qualified Data.Text as T
+import Data.Maybe
+import Data.List.Split (chunksOf)
+
+import Data.Maybe (fromMaybe)
+import Text.Read (readMaybe)
+import Data.Char (isDigit)
 
 data Local = Local {
     --idLocal :: Int,
@@ -52,6 +61,13 @@ criarLocal nome recursos capacidade = do
 
 getNomeLocal :: Local -> String
 getNomeLocal Local {nomeLocal = n} = n
+
+-- Função que extrai os nomes dos locais da lista de locais
+getNomesLocais :: [Local] -> [String]
+getNomesLocais = map (dropPrefix "Nome: ") . map getNomeLocal
+  where
+    dropPrefix prefix str = if prefix `isPrefixOf` str then drop (length prefix) str else str
+
 
 getRecursosLocal :: Local -> [String]
 getRecursosLocal Local {recursosLocal = r} = r
@@ -107,36 +123,58 @@ toWrite local = localToString local ++ "\n"
 getLocaisPuros :: [Local]
 getLocaisPuros = unsafePerformIO getLocaisFromList :: [Local]
 
+-- convertToList :: [String] -> [Local]
+-- convertToList [] = []
+-- convertToList (local:list) =
+--     convertToLocal (split local ',') : convertToList list
+
+-- convertRecursosToList :: [String] -> [[String]]
+-- convertRecursosToList = map (`split` ',')
+
+-- convertToLocal :: [String] -> Maybe Local
+-- convertToLocal local
+--     | length local >= 4 = Just Local
+--         { nomeLocal = local !! 1
+--         , recursosLocal = fromIO (getRecursosList nomeLocal)
+--         , capacidadeLocal = read (local !! 3) :: Int
+--         }
+--     | otherwise = Nothing
+
 getLocaisFromList :: IO [Local]
 getLocaisFromList = do
-    locais <- openFile "./Local/Locais.csv" ReadMode
-    listaDeLocais <- lines <$> hGetContents locais
-    hClose locais
-    return $ convertToList listaDeLocais
+    contents <- TIO.readFile "./Local/Locais.csv"
+    let listaDeLocais = map T.unpack (T.lines contents)
+    let groupedLines = chunksOf 3 listaDeLocais
+    return $ mapMaybe parseLocal groupedLines
 
-convertToList :: [String] -> [Local]
-convertToList [] = []
-convertToList (local:list) =
-    convertToLocal (split local ',') : convertToList list
+-- Função auxiliar para extrair o valor associado a uma chave
+extractKeyValue :: String -> String -> String
+extractKeyValue key line = fromMaybe (error $ "Chave não encontrada: " ++ key) $ lookup key keyValuePairs
+  where
+    keyValuePairs = map (\(k, v) -> (trim k, trim v)) $ map (break (== ':')) $ words line
+    trim = dropWhile (== ' ') . reverse . dropWhile (== ' ') . reverse
 
-convertRecursosToList :: [String] -> [[String]]
-convertRecursosToList = map (`split` ',')
+-- Função auxiliar para tratar erros de conversão
+readInt :: String -> Int
+readInt s = fromMaybe (error $ "Erro ao analisar capacidadeLine: " ++ s) (readMaybe s)
 
-convertToLocal :: [String] -> Local
-convertToLocal local = Local nomeLocal recursosLocal capacidadeLocal
-    where
-        --idLocal = read (head local) :: Int
-        nomeLocal = local !! 1
-        recursosLocal = fromIO (getRecursosList nomeLocal)
-        capacidadeLocal = read (local !! 3) :: Int
+parseLocal :: [String] -> Maybe Local
+parseLocal [nomeLine, recursosLine, capacidadeLine] = do
+    let nome = nomeLine
+        recursos = words recursosLine
+        capacidadeStr = extractKeyValue "Capacidade" capacidadeLine
+        capacidade = readInt capacidadeStr
 
-getRecursosList :: String -> IO [String]
-getRecursosList nome = do
-    recursos <- openFile "RecursosLocal.csv" ReadMode
-    listaDeRecursos <- lines <$> hGetContents recursos
-    let recursosTotais = convertRecursosToList listaDeRecursos
-    hClose recursos
-    return $ filtraRecurso nome recursosTotais
+    return Local { nomeLocal = nome, recursosLocal = recursos, capacidadeLocal = capacidade }
+parseLocal _ = Nothing
+
+-- getRecursosList :: String -> IO [String]
+-- getRecursosList nome = do
+--     recursos <- openFile "RecursosLocal.csv" ReadMode
+--     listaDeRecursos <- lines <$> hGetContents recursos
+--     let recursosTotais = convertRecursosToList listaDeRecursos
+--     hClose recursos
+--     return $ filtraRecurso nome recursosTotais
 
 filtraRecurso :: String -> [[String]] -> [String]
 filtraRecurso _ [] = []

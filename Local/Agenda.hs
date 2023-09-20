@@ -1,6 +1,14 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Local.Agenda (AgendaEntry(AgendaEntry), geraAgenda, aloca, writeAgendaLocal, printAgenda, desaloca)where
+module Local.Agenda (
+    AgendaEntry(AgendaEntry),
+    geraAgenda,
+    aloca,
+    writeAgendaLocal,
+    printAgenda,
+    desaloca,
+    obterAgendaParaProximosTrintaDias
+) where
 
 import Data.Csv
 import qualified Data.ByteString.Lazy as BL
@@ -17,6 +25,7 @@ import Local.Util
 import Data.Time.LocalTime
 import Data.Ord (comparing)
 
+-- Definição do tipo de dados AgendaEntry
 data AgendaEntry = AgendaEntry
     { date    :: String
     , time    :: String
@@ -25,6 +34,7 @@ data AgendaEntry = AgendaEntry
     , listaEspera :: [String]
     } deriving (Generic, Show)
 
+-- Instâncias para trabalhar com CSV
 instance ToNamedRecord AgendaEntry where
     toNamedRecord entry = namedRecord
         [ "Data" .= date entry
@@ -42,12 +52,10 @@ instance ToRecord AgendaEntry where
         , TE.encodeUtf8 (T.pack (time entry))
         , TE.encodeUtf8 (T.pack (disponibilidade entry))
         , TE.encodeUtf8 (T.pack (responsavel entry))
-        --, TE.encodeUtf8 (T.pack (formatListaEspera (listaEspera entry)))  -- Formata a lista de espera
         , case listaEspera entry of
             [] -> TE.encodeUtf8 (T.pack "")  -- Lista vazia, define como string vazia
             _  -> TE.encodeUtf8 (T.pack (intercalate "," (listaEspera entry)))  -- Formata a lista de espera com vírgulas
         ]
-
 
 instance FromNamedRecord AgendaEntry where
     parseNamedRecord r = AgendaEntry
@@ -78,15 +86,14 @@ instance FromRecord AgendaEntry where
             return $ AgendaEntry dateStr timeStr dispStr respStr listaEspera
         | otherwise = fail "Invalid record length"
 
-
---------- Escrever arquivo de agenda do local -----------
-
+-- Função para escrever um arquivo de agenda local
 writeAgendaLocal :: String -> IO ()
 writeAgendaLocal nome = do
     let nomeArquivo = nome
     let csvFilePath = nomeArquivo
     geraAgenda csvFilePath
 
+-- Função para gerar a agenda
 geraAgenda :: String -> IO ()
 geraAgenda nomeLocal = do
     let year = fromIOInteger getCurrentYear
@@ -110,7 +117,7 @@ geraAgenda nomeLocal = do
 
     putStrLn "Arquivo CSV da agenda gerado com sucesso!"
 
-
+-- Função para gerar a agenda para um mês
 generateAgendaForMonth :: Integer -> Int -> Int -> [String] -> [AgendaEntry]
 generateAgendaForMonth year month day timeSlots = do
     let startDate = fromGregorian year month day
@@ -120,50 +127,42 @@ generateAgendaForMonth year month day timeSlots = do
     [AgendaEntry (formatTime defaultTimeLocale "%d-%m-%Y" day) time
         "Disponivel" "-" [] | day <- days, isDiaUtil day, time <- timeSlots]
 
-
---Função para obter o ano atual
+-- Função para obter o ano atual
 getCurrentYear :: IO Integer
 getCurrentYear = do
     currentTime <- getCurrentTime
     let (year, _, _) = toGregorian $ utctDay currentTime
     return year
 
+-- Função para obter o mês atual
 getCurrentMonth :: IO Int
 getCurrentMonth = do
     currentTime <- getCurrentTime
-    let (_, moth, _) = toGregorian $ utctDay currentTime
-    return moth
+    let (_, month, _) = toGregorian $ utctDay currentTime
+    return month
 
+-- Função para obter o dia atual
 getCurrentDay :: IO Int
 getCurrentDay = do
     currentTime <- getCurrentTime
     let (_, _, day) = toGregorian $ utctDay currentTime
     return day
 
---Função para verificar se um dia é útil (segunda a sexta)
+-- Função para verificar se um dia é útil (segunda a sexta)
 isDiaUtil :: Day -> Bool
 isDiaUtil date =
     let (_, _, diaDaSemana) = toWeekDate date
     in diaDaSemana >= 1 && diaDaSemana <= 5
 
+-- Função para converter um IO Integer para Integer
 fromIOInteger :: IO Integer -> Integer
 fromIOInteger x = unsafePerformIO x :: Integer
 
+-- Função para converter um IO Int para Int
 fromIOInt :: IO Int -> Int
 fromIOInt x = unsafePerformIO x :: Int
 
-------------- Atualizar Agenda / Alocar Usuário ---------------------
-
-toAgendaEntry :: [String] -> AgendaEntry
-toAgendaEntry [dateStr, timeStr, dispStr, respStr, listaEsperaStr] =
-    AgendaEntry
-        { date = dateStr
-        , time = timeStr
-        , disponibilidade = dispStr
-        , responsavel = respStr
-        , listaEspera = words listaEsperaStr  -- Divide a string em uma lista de strings
-        }
-
+-- Função para atualizar o CSV ao alocar um usuário
 alocaUpdateCSV :: FilePath -> String -> String -> String -> IO Bool
 alocaUpdateCSV fileName targetDate targetTime newResponsavel = do
     csvData <- BL.readFile fileName
@@ -185,24 +184,26 @@ alocaUpdateCSV fileName targetDate targetTime newResponsavel = do
             else entry { listaEspera = adicionarElemento newResponsavel (listaEspera entry) }
         | otherwise = entry
 
--- Função para extrair os quatro primeiros dígitos de uma string
-takeFourDigits :: String -> String
-takeFourDigits = take 4
+    -- Função para extrair os quatro primeiros dígitos de uma string
+    takeFourDigits :: String -> String
+    takeFourDigits = take 4
 
--- Função para comparar dois números com base nos quatro primeiros dígitos
-compareByFourDigits :: String -> String -> Ordering
-compareByFourDigits = comparing takeFourDigits
+    -- Função para comparar dois números com base nos quatro primeiros dígitos
+    compareByFourDigits :: String -> String -> Ordering
+    compareByFourDigits = comparing takeFourDigits
 
--- Função para realizar o insertion sort com base nos quatro primeiros dígitos
-insertionSortByFourDigits :: [String] -> [String]
-insertionSortByFourDigits = foldr insertByFourDigits []
-  where
-    insertByFourDigits = insertBy compareByFourDigits
+    -- Função para realizar o insertion sort com base nos quatro primeiros dígitos
+    insertionSortByFourDigits :: [String] -> [String]
+    insertionSortByFourDigits = foldr insertByFourDigits []
+      where
+        insertByFourDigits = insertBy compareByFourDigits
 
-adicionarElemento :: String -> [String] -> [String]
-adicionarElemento novoElemento lista =
-    insertionSortByFourDigits (lista ++ [novoElemento])
+    -- Função para adicionar um elemento a uma lista ordenada por quatro primeiros dígitos
+    adicionarElemento :: String -> [String] -> [String]
+    adicionarElemento novoElemento lista =
+        insertionSortByFourDigits (lista ++ [novoElemento])
 
+-- Função para alocar um usuário na agenda
 aloca :: String -> String -> String -> String -> IO ()
 aloca nomeLocal dia hora responsavel = do
     let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"
@@ -210,13 +211,6 @@ aloca nomeLocal dia hora responsavel = do
     if success
         then putStrLn "CSV atualizado com sucesso."
         else putStrLn "Falha na atualização do CSV."
-
-
------------------ Amostrar 30 dias da Agenda -------------------
-
--- Função para analisar uma data no formato de string "dd-MM-yyyy"
-parseData :: String -> Maybe Day
-parseData = parseTimeM True defaultTimeLocale "%d-%m-%Y"
 
 -- Função para obter a agenda para os próximos trinta dias
 obterAgendaParaProximosTrintaDias :: String -> IO [AgendaEntry]
@@ -248,6 +242,10 @@ isDataNoIntervalo dataInicio dataFim entry =
         Just dataVerificacao -> dataInicio <= dataVerificacao && dataVerificacao <= dataFim
         Nothing -> False
 
+-- Função para analisar uma data no formato de string "dd-MM-yyyy"
+parseData :: String -> Maybe Day
+parseData = parseTimeM True defaultTimeLocale "%d-%m-%Y"
+
 -- Função para obter a data atual
 getCurrentDate :: IO Day
 getCurrentDate = do
@@ -266,8 +264,7 @@ printAgenda nome = do
                                ", time = " ++ show (time entry) ++
                                ", disponibilidade = " ++ show (disponibilidade entry)
 
------------------ Atualizar Agenda / Desalocar Usuário ------------------
-
+-- Função para atualizar o CSV ao desalocar um usuário
 desalocaUpdateCSV :: FilePath -> String -> String -> String -> IO Bool
 desalocaUpdateCSV fileName targetDate targetTime targetResponsavel = do
     csvData <- BL.readFile fileName
@@ -292,6 +289,7 @@ desalocaUpdateCSV fileName targetDate targetTime targetResponsavel = do
     newDisponibilidade entry = "Disponivel"
     newResponsavel entry = "-"
 
+-- Função para desalocar um usuário da agenda
 desaloca :: String -> String -> String -> String -> IO ()
 desaloca nomeLocal dia hora responsavel = do
     let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"

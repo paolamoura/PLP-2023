@@ -7,3 +7,12 @@ Capacidade: 30
 Nome: Tenis
 Recursos: raquete
 Capacidade: 2
+Nome: Salão de Festas
+Recursos: Mesas,Cadeiras,Iluminação,Palco
+Capacidade: 100
+Nome: Auditório
+Recursos: Projetor,Som,Cadeiras
+Capacidade: 150
+Nome: Sala de Reuniões
+Recursos: Tela,Quadro Branco,Mesa de Conferência
+Capacidade: 20

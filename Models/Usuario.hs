@@ -6,6 +6,7 @@ module Models.Usuario (
   , getUsuarioByMatricula
   , cadastrarUsuario
   , confereSenha
+  , getMatricula
   , removeUsuarioByMatricula
   , recordToUsuario
   , csvParseError
@@ -155,3 +156,7 @@ removeUsuarioCSV csvFilePath matricula = do
       removeFile csvFilePath
       renameFile "../Temp.csv" csvFilePath
       return (Right ())
+
+-- Função para obter a matrícula de um usuário
+getMatricula :: Usuario -> String
+getMatricula = matricula
