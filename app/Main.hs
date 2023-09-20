@@ -4,7 +4,9 @@ import Login.CadastraLogin (fazerCadastro, fazerLogin)
 import Models.Usuario (Usuario, confereSenha, getMatricula)
 import Local.Local
 import Local.Agenda
+-- Import Services
 import Services.AlocarHorarioService (alocarHorarioService)
+import Services.DesalocarHorarioService
 
 data Screen = MainMenu
             | CadastroScreen
@@ -92,7 +94,19 @@ runProgram AgendamentosScreen (Just usuario) = do
                     alocarHorarioService local date time (getMatricula usuario)
                     runProgram ExitScreen (Just usuario)
                 _ -> putStrLn "Formato CSV Inválido!" >> runProgram ExitScreen (Just usuario)
-        "Cancelar Agendamento" -> runProgram ExitScreen (Just usuario)
+        "Cancelar Agendamento" -> do
+            let locaisPuros = getLocaisPuros
+            let nomeDosLocais = getNomesLocais locaisPuros
+            local <- gum (Choose nomeDosLocais [])
+            let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Agenda.csv")
+            let parsedData = parseCSV selecionado
+            case parsedData of
+                [CSVRow [date, time, _, responsavel, _]] -> do
+                    desalocaHorarioService local date time responsavel
+                    runProgram ExitScreen (Just usuario)
+                _ -> putStrLn "Formato CSV Inválido!" >> runProgram ExitScreen (Just usuario)
+            runProgram ExitScreen (Just usuario)
         "Sair" -> runProgram ExitScreen (Just usuario)
         _ -> do
             putStrLn "Opção inválida."
