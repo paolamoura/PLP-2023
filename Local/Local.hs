@@ -12,7 +12,7 @@ module Local.Local (Local(Local), Locais(Locais),
     getRecursosLocal,
     getRecursosLocais,
     getRecursosLocalToString,
-    writeArquivoLocal) where
+    writeArquivoLocal, criarLocal) where
 import System.IO
 import System.Directory
 import Local.Util
@@ -36,6 +36,15 @@ data Local = Local {
 newtype Locais = Locais {
     locais :: [(Int, Local)]
 } deriving Show
+
+criarLocal :: String -> [String] -> Int -> IO ()
+criarLocal nome recursos capacidade = do
+    let local = Local {
+        nomeLocal = nome,
+        recursosLocal = recursos,
+        capacidadeLocal = capacidade
+    }
+    writeArquivoLocal local
 
 --------- Local Getters -----------
 --getIdLocal :: Local -> Int
@@ -79,8 +88,8 @@ localToString Local {nomeLocal = n, recursosLocal = r, capacidadeLocal = c} = "N
 
 writeArquivoLocal :: Local -> IO()
 writeArquivoLocal local = do
-    arq <- openFile "Locais.csv" AppendMode
-    arq1 <- openFile "RecursosLocais.csv" AppendMode
+    arq <- openFile "./Local/Locais.csv" AppendMode
+    arq1 <- openFile "./Local/RecursosLocais.csv" AppendMode
 
     print local -- mudar isso, mas fazer depois
 
@@ -100,7 +109,7 @@ getLocaisPuros = unsafePerformIO getLocaisFromList :: [Local]
 
 getLocaisFromList :: IO [Local]
 getLocaisFromList = do
-    locais <- openFile "Locais.csv" ReadMode
+    locais <- openFile "./Local/Locais.csv" ReadMode
     listaDeLocais <- lines <$> hGetContents locais
     hClose locais
     return $ convertToList listaDeLocais

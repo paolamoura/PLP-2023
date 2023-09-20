@@ -106,7 +106,7 @@ geraAgenda nomeLocal = do
     let finalCsvContent = BL.fromStrict header <> csvContent
 
     -- Escreva o conteúdo no arquivo
-    BL.writeFile (nomeLocal ++ "Agenda.csv") finalCsvContent
+    BL.writeFile ("./Agenda/" ++ nomeLocal ++ "Agenda.csv") finalCsvContent
 
     putStrLn "Arquivo CSV da agenda gerado com sucesso!"
 
@@ -205,7 +205,7 @@ adicionarElemento novoElemento lista =
 
 aloca :: String -> String -> String -> String -> IO ()
 aloca nomeLocal dia hora responsavel = do
-    let fileName = nomeLocal ++ "Agenda.csv"
+    let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"
     success <- alocaUpdateCSV fileName dia hora responsavel
     if success
         then putStrLn "CSV atualizado com sucesso."
@@ -221,7 +221,7 @@ parseData = parseTimeM True defaultTimeLocale "%d-%m-%Y"
 -- Função para obter a agenda para os próximos trinta dias
 obterAgendaParaProximosTrintaDias :: String -> IO [AgendaEntry]
 obterAgendaParaProximosTrintaDias nomeLocal = do
-    let fileName = nomeLocal ++ "Agenda.csv"
+    let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"
 
     -- Obter a data atual
     dataAtual <- getCurrentDate
@@ -292,11 +292,9 @@ desalocaUpdateCSV fileName targetDate targetTime targetResponsavel = do
     newDisponibilidade entry = "Disponivel"
     newResponsavel entry = "-"
 
-
-
 desaloca :: String -> String -> String -> String -> IO ()
 desaloca nomeLocal dia hora responsavel = do
-    let fileName = nomeLocal ++ "Agenda.csv"
+    let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"
     success <- desalocaUpdateCSV fileName dia hora responsavel
     if success
         then putStrLn "CSV atualizado com sucesso."

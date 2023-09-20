@@ -30,7 +30,10 @@ executable PLP2023
         Utils.Gum
         Menu.MenuPrincipal
         Models.Usuario
+        Models.UsuarioInstituicao
+        Services.CriarLocalService
         Login.CadastraLogin
+        Login.CadastraLoginInstituicao
         Local.Local
         Local.Util
         Local.Agenda
