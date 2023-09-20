@@ -30,7 +30,13 @@ executable PLP2023
         Utils.Gum
         Menu.MenuPrincipal
         Models.Usuario
+        Models.UsuarioInstituicao
+        Services.CriarLocalService
         Login.CadastraLogin
+        Login.CadastraLoginInstituicao
+        Local.Local
+        Local.Util
+        Local.Agenda
     
 
     -- LANGUAGE extensions used by modules in this package.
@@ -44,6 +50,7 @@ executable PLP2023
         csv-conduit >= 0.7 && < 0.8,
         vector,
         split,
+        time,
         process,
         parsec,
         bytestring >= 0.11 && < 0.12,
