@@ -7,8 +7,9 @@ module Local.Agenda (
     writeAgendaLocal,
     printAgenda,
     desaloca,
-    obterAgendaParaProximosTrintaDias,
     contagemDiasDaSemana
+    excluirArquivoTemporario,
+    obterAgendaParaProximosQuinzeDias
 ) where
 
 import Data.Csv
@@ -28,6 +29,7 @@ import Local.Util
 import Data.Time.LocalTime
 import Data.Ord (comparing)
 import Data.Maybe
+import System.Directory
 
 -- Definição do tipo de dados AgendaEntry
 data AgendaEntry = AgendaEntry
@@ -256,15 +258,16 @@ contagemDiasDaSemana nomeLocal = do
             contagem -- Dia inválido, retornar a contagem sem alterações
 
 -- Função para obter a agenda para os próximos trinta dias
-obterAgendaParaProximosTrintaDias :: String -> IO [AgendaEntry]
-obterAgendaParaProximosTrintaDias nomeLocal = do
+obterAgendaParaProximosQuinzeDias :: String -> IO [AgendaEntry]
+obterAgendaParaProximosQuinzeDias nomeLocal = do
     let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"
+    let fileTemp = "./Agenda/" ++ nomeLocal ++ "Temp.csv"
 
     -- Obter a data atual
     dataAtual <- getCurrentDate
 
-    -- Calcular a data limite (30 dias após a data atual)
-    let dataLimite = addDays 30 dataAtual
+    -- Calcular a data limite (15 dias após a data atual)
+    let dataLimite = addDays 15 dataAtual
 
     -- Ler o arquivo CSV
     csvData <- BL.readFile fileName
@@ -276,6 +279,10 @@ obterAgendaParaProximosTrintaDias nomeLocal = do
         Right entries -> do
             -- Filtrar as entradas da agenda com a data atual e data limite
             let agendaFiltrada = filter (isDataNoIntervalo dataAtual dataLimite) (V.toList entries)
+            let agendaByteString = encode agendaFiltrada
+            let header = B8.pack "Data,Hora,Disponibilidade,Responsavel,ListaEspera\n"
+            let finalCsvContent = BL.fromStrict header <> agendaByteString
+            BL.writeFile fileTemp finalCsvContent
             return agendaFiltrada
 
 -- Função para verificar se uma data está dentro de um intervalo
@@ -299,7 +306,7 @@ getCurrentDate = do
 -- Função para imprimir a agenda
 printAgenda :: String -> IO ()
 printAgenda nome = do
-    agenda <- obterAgendaParaProximosTrintaDias nome
+    agenda <- obterAgendaParaProximosQuinzeDias nome
     putStrLn "Agenda para os próximos trinta dias:"
     mapM_ printEntry agenda
   where
@@ -340,3 +347,12 @@ desaloca nomeLocal dia hora responsavel = do
     if success
         then putStrLn "CSV atualizado com sucesso."
         else putStrLn "Falha na atualização do CSV."
+
+-- Função para excluir o arquivo temporário
+excluirArquivoTemporario :: String -> IO ()
+excluirArquivoTemporario nomeLocal = do
+    let fileTemp = "./Agenda/" ++ nomeLocal ++ "Temp.csv"
+    fileExists <- doesFileExist fileTemp
+    if fileExists
+        then removeFile fileTemp
+        else putStrLn "O arquivo temporário não existe."
