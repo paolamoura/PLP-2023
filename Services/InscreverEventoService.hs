@@ -4,6 +4,6 @@ module Services.InscreverEventoService(
 
 import Models.Evento
 
-inscreverParticipanteService :: String -> String -> IO()
+inscreverParticipanteService :: String -> String -> IO Bool
 inscreverParticipanteService nomeEvento matriculaUsuario = do
     inscreverParticipante nomeEvento matriculaUsuario

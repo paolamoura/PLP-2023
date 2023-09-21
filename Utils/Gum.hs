@@ -64,9 +64,9 @@ runCommandWithInput cmd input = do
     return output
 
 -- Função para executar o comando Gum Table com um arquivo de caminho especificado.
-gumTable :: String -> IO String
-gumTable filePath = do
-    let cmd = "gum table -w 10 -w 5 < " ++ filePath
+gumTable :: String -> [GumFlag] -> IO String
+gumTable filePath flags = do
+    let cmd = "gum " ++ unwords (constructArgs "table" [] flags) ++ " < "  ++ filePath
     runCommandWithInput cmd ""
 
 data DadosCSV = DadosCSV

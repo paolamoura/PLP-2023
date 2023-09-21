@@ -13,6 +13,8 @@ import Services.AlocarHorarioService (alocarHorarioService)
 import Services.DesalocarHorarioService
 import Services.CriarLocalService
 import Services.CriarEventoService
+import Services.InscreverEventoService
+import Services.DesinscreverEventoService
 
 data Screen = MainMenu
             | CadastroScreen
@@ -146,16 +148,51 @@ runLoginAdmScreen = do
 
 runAgendamentosUserScreen :: Maybe Usuario -> IO Screen
 runAgendamentosUserScreen (Just usuario) = do
-    screen <- gum (Choose ["Solicitar Agendamento", "Cancelar Agendamento", "Voltar", "Sair"] [])
+    screen <- gum (Choose ["Solicitar Agendamento", "Cancelar Agendamento", "Inscrever em Evento", "Desinscrever em Evento", "Voltar", "Sair"] [])
     case screen of
         "Solicitar Agendamento" -> runSolicitarAgendamento (Left usuario)
         "Cancelar Agendamento" -> runCancelarAgendamento (Left usuario)
+        "Inscrever em Evento" -> runInscreverEvento (Left usuario)
+        "Desinscrever em Evento" -> runDesinscreverEvento (Left usuario)
         "Voltar" -> runLoginScreen
         "Sair" -> return ExitScreen
         _ -> do
             putStrLn "Opção inválida."
             return ExitScreen
 
+runInscreverEvento :: Either Usuario UsuarioInstituicao -> IO Screen
+runInscreverEvento usuario = do
+    case usuario of
+        Left usuario -> do
+            selecionado <- runCommandWithInput "gum table -w 15 -w 5 -w 5 -w 5 -w 5 < ./Arquivos/Eventos.csv" ""
+            let parsedData = parseCSV selecionado
+            case parsedData of
+                [CSVRow [nomeEvento, _, _, _, _, _, _, _]] -> do
+                    isDesinscrito <- inscreverParticipanteService nomeEvento (Models.Usuario.getMatricula usuario)
+                    if isDesinscrito
+                    then putStrLn "Está inscrito!"
+                    else putStrLn "Já inscrito" 
+                    runAgendamentosUserScreen (eitherToMaybe (Left usuario))
+                _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
+        Right usuario -> do
+            putStrLn "Instituição não se inscreve" >> return ExitScreen
+
+runDesinscreverEvento :: Either Usuario UsuarioInstituicao -> IO Screen
+runDesinscreverEvento usuario = do
+    case usuario of
+        Left usuario -> do
+            selecionado <- runCommandWithInput "gum table -w 15 -w 5 -w 5 -w 5 -w 5 < ./Arquivos/Eventos.csv" ""
+            let parsedData = parseCSV selecionado
+            case parsedData of
+                [CSVRow [nomeEvento, _, _, _, _, _, _, _]] -> do
+                    isDesinscrito <- desinscreverParticipanteService nomeEvento (Models.Usuario.getMatricula usuario)
+                    if isDesinscrito
+                    then putStrLn "Está desinscrito!"
+                    else putStrLn "Já desinscrito" 
+                    runAgendamentosUserScreen (eitherToMaybe (Left usuario))
+                _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
+        Right usuario -> do
+            putStrLn "Instituição não se desinscreve" >> return ExitScreen
 runAgendamentosInstScreen :: Maybe UsuarioInstituicao -> IO Screen
 runAgendamentosInstScreen (Just instituicao) = do
     screen <- gum (Choose ["Solicitar Evento", "Cancelar Evento", "Voltar", "Sair"] [])
@@ -210,12 +247,12 @@ runSolicitarAgendamento usuario = do
             local <- gum (Choose nomeDosLocais [])
             let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
             obterAgendaParaProximosQuinzeDias local
-            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv")
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv") flags
             excluirArquivoTemporario local
             let parsedData = parseCSV selecionado
             case parsedData of
-                [CSVRow [date, time, _, _, _]] -> do
-                    alocarHorarioService local date time (Models.Usuario.getMatricula usuario)
+                [CSVRow [nome, time, _, _, _]] -> do
+                    alocarHorarioService local nome time (Models.Usuario.getMatricula usuario)
                     runAgendamentosUserScreen (eitherToMaybe (Left usuario))
                 _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
         Right usuario -> do
@@ -224,12 +261,12 @@ runSolicitarAgendamento usuario = do
             local <- gum (Choose nomeDosLocais [])
             let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
             obterAgendaParaProximosQuinzeDias local
-            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv")
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv") flags
             excluirArquivoTemporario local
             let parsedData = parseCSV selecionado
             case parsedData of
-                [CSVRow [date, time, _, _, _]] -> do
-                    alocarHorarioService local date time (Models.UsuarioInstituicao.getMatricula usuario)
+                [CSVRow [nome, time, _, _, _]] -> do
+                    alocarHorarioService local nome time (Models.UsuarioInstituicao.getMatricula usuario)
                     runAgendamentosInstScreen (eitherToMaybe (Left usuario))
                 _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
 
@@ -243,12 +280,12 @@ runCancelarAgendamento usuario = do
             local <- gum (Choose nomeDosLocais [])
             let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
             obterAgendaParaProximosQuinzeDias local
-            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv")
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv") flags
             excluirArquivoTemporario local
             let parsedData = parseCSV selecionado
             case parsedData of
-                [CSVRow [date, time, _, responsavel, _]] -> do
-                    desalocaHorarioService local date time responsavel
+                [CSVRow [nome, time, _, responsavel, _]] -> do
+                    desalocaHorarioService local nome time responsavel
                     runAgendamentosUserScreen (eitherToMaybe (Left usuario))
                 _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
         Right usuario -> do
@@ -257,12 +294,12 @@ runCancelarAgendamento usuario = do
             local <- gum (Choose nomeDosLocais [])
             let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
             obterAgendaParaProximosQuinzeDias local
-            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv")
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv") flags
             excluirArquivoTemporario local
             let parsedData = parseCSV selecionado
             case parsedData of
-                [CSVRow [date, time, _, responsavel, _]] -> do
-                    desalocaHorarioService local date time responsavel
+                [CSVRow [nome, time, _, responsavel, _]] -> do
+                    desalocaHorarioService local nome time responsavel
                     runAgendamentosInstScreen (eitherToMaybe (Left usuario))
                 _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
 
@@ -281,12 +318,12 @@ runCriarEvento instituicao = do
             local <- gum (Choose nomeDosLocais [])
             let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
             obterAgendaParaProximosQuinzeDias local
-            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv")
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv") flags
             excluirArquivoTemporario local
             let parsedData = parseCSV selecionado
             case parsedData of
-                [CSVRow [date, time, _, _, _]] -> do
-                    criarEventoService nomeEvento local (Models.UsuarioInstituicao.getMatricula instituicao) date time capacidade
+                [CSVRow [nome, time, _, _, _]] -> do
+                    criarEventoService nomeEvento local (Models.UsuarioInstituicao.getMatricula instituicao) nome time capacidade
                     runAgendamentosInstScreen (eitherToMaybe (Left instituicao))
                 _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
 
