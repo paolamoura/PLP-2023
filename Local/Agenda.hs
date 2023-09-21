@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant if" #-}
 module Local.Agenda (
     AgendaEntry(AgendaEntry),
     geraAgenda,
@@ -185,9 +187,13 @@ alocaUpdateCSV fileName targetDate targetTime newResponsavel = do
   where
     updateIfNeeded targetDate targetTime newResponsavel entry
         | date entry == targetDate && time entry == targetTime =
-            if disponibilidade entry == "Disponivel"
-            then entry { disponibilidade = "Ocupado", responsavel = newResponsavel }
-            else entry { listaEspera = adicionarElemento newResponsavel (listaEspera entry) }
+            if head newResponsavel == '0'
+            then entry { disponibilidade = "Ocupado", responsavel = newResponsavel, listaEspera = adicionarElemento (responsavel entry) (listaEspera entry)}
+            else if disponibilidade entry == "Disponivel"
+                then entry { disponibilidade = "Ocupado", responsavel = newResponsavel }
+                else if newResponsavel `notElem` (responsavel entry : listaEspera entry)
+                        then entry { listaEspera = adicionarElemento newResponsavel (listaEspera entry) }
+                        else entry
         | otherwise = entry
 
     -- Função para extrair os quatro primeiros dígitos de uma string

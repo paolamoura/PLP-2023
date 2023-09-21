@@ -1,4 +1,4 @@
-module Utils.CSVParser where
+module Utils.Parser where
 
 import Data.List.Split (splitOn)
 import Data.List (intercalate, isPrefixOf)

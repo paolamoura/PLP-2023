@@ -90,3 +90,8 @@ extrairDados csvData = do
                     Just $ DadosCSV dataStr horaStr disponibilidadeStr responsavelStr listaEsperaStr
                 _ -> do
                     Nothing
+
+-- Função para converter Either em Maybe
+eitherToMaybe :: Either a b -> Maybe a
+eitherToMaybe (Left x) = Just x
+eitherToMaybe (Right _) = Nothing
