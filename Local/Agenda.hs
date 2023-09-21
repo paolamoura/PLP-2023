@@ -7,11 +7,13 @@ module Local.Agenda (
     writeAgendaLocal,
     printAgenda,
     desaloca,
+    contagemDiasDaSemana
     excluirArquivoTemporario,
     obterAgendaParaProximosQuinzeDias
 ) where
 
 import Data.Csv
+import qualified Data.Map as Map
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -22,9 +24,11 @@ import System.IO.Unsafe
 import qualified Data.ByteString.Char8 as B8
 import Data.List
 import qualified Data.Vector as V
+import Data.Map (Map)
 import Local.Util
 import Data.Time.LocalTime
 import Data.Ord (comparing)
+import Data.Maybe
 import System.Directory
 
 -- Definição do tipo de dados AgendaEntry
@@ -213,6 +217,45 @@ aloca nomeLocal dia hora responsavel = do
     if success
         then putStrLn "CSV atualizado com sucesso."
         else putStrLn "Falha na atualização do CSV."
+
+contagemDiasDaSemana :: String -> IO [Int]
+contagemDiasDaSemana nomeLocal = do
+    agenda <- obterAgendaParaProximosTrintaDias nomeLocal
+    let contagem = replicate 5 0  -- Lista de 5 zeros para representar os dias da semana
+    return $ foldl contarDiasDaSemana contagem agenda
+  where
+    -- Função para contar os dias da semana em uma entrada da agenda
+    contarDiasDaSemana :: [Int] -> AgendaEntry -> [Int]
+    contarDiasDaSemana contagem entry =
+        case parseData (date entry) of
+            Just dataX ->
+                let diaSemana = obterDiaSemana dataX
+                    listaEsperaDia = listaEspera entry
+                in somarListaEspera contagem diaSemana listaEsperaDia
+            Nothing -> contagem
+
+    -- Função para obter o dia da semana (Segunda a Sexta)
+    obterDiaSemana :: Day -> Int
+    obterDiaSemana dataX = 
+        let (_, _, diaDaSemana) = toWeekDate dataX
+        in case diaDaSemana of
+            1 -> 0  -- Segunda
+            2 -> 1  -- Terça
+            3 -> 2  -- Quarta
+            4 -> 3  -- Quinta
+            5 -> 4  -- Sexta
+            _ -> -1 -- Outro (não deve acontecer)
+
+    -- Função para somar a lista de espera a um dia da semana
+    somarListaEspera :: [Int] -> Int -> [String] -> [Int]
+    somarListaEspera contagem dia listaEsperaDia =
+        if dia >= 0 && dia < 5 -- Certificar-se de que o dia é válido
+        then
+            let currentCount = contagem !! dia
+                pessoasNaLista = length listaEsperaDia
+            in take dia contagem ++ [currentCount + pessoasNaLista] ++ drop (dia + 1) contagem
+        else
+            contagem -- Dia inválido, retornar a contagem sem alterações
 
 -- Função para obter a agenda para os próximos trinta dias
 obterAgendaParaProximosQuinzeDias :: String -> IO [AgendaEntry]
