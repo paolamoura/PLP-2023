@@ -28,7 +28,7 @@ data Screen = MainMenu
 
 main :: IO ()
 main = do
-    putStrLn "Bem-vindo ao programa de cadastro e login!"
+    putStrLn "Bem-vindo ao programa SGCE-UFCG"
     programState <- runProgram MainMenu
 
     case programState of
