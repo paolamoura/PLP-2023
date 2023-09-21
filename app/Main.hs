@@ -7,10 +7,12 @@ import Models.Usuario (Usuario, confereSenha, getMatricula)
 import Models.UsuarioInstituicao (UsuarioInstituicao, confereSenha, getMatricula)
 import Local.Local
 import Local.Agenda
+import Data.Time (Day)
 -- Import Services
 import Services.AlocarHorarioService (alocarHorarioService)
 import Services.DesalocarHorarioService
 import Services.CriarLocalService
+import Services.CriarEventoService
 
 data Screen = MainMenu
             | CadastroScreen
@@ -158,7 +160,7 @@ runAgendamentosInstScreen :: Maybe UsuarioInstituicao -> IO Screen
 runAgendamentosInstScreen (Just instituicao) = do
     screen <- gum (Choose ["Solicitar Evento", "Cancelar Evento", "Voltar", "Sair"] [])
     case screen of
-        "Solicitar Evento" -> runSolicitarAgendamento (Right instituicao)
+        "Solicitar Evento" -> runCriarEvento (Right instituicao)
         "Cancelar Evento" -> runCancelarAgendamento (Right instituicao)
         "Voltar" -> runLoginScreen
         "Sair" -> return ExitScreen
@@ -262,6 +264,30 @@ runCancelarAgendamento usuario = do
                 [CSVRow [date, time, _, responsavel, _]] -> do
                     desalocaHorarioService local date time responsavel
                     runAgendamentosInstScreen (eitherToMaybe (Left usuario))
+                _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
+
+runCriarEvento :: Either Usuario UsuarioInstituicao -> IO Screen
+runCriarEvento instituicao = do
+    case instituicao of
+        Left instituicao -> do
+            putStrLn "Usuário Não Autorizado" >> return ExitScreen
+        Right instituicao -> do
+            nomeEvento <- gum (Input [FlagWithArg "--prompt" "Nome do Evento: "])
+            capacidadeInput <- gum (Input [FlagWithArg "--prompt" "Capacidade: "])
+            let capacidade = read capacidadeInput :: Int
+
+            let locaisPuros = getLocaisPuros
+            let nomeDosLocais = getNomesLocais locaisPuros
+            local <- gum (Choose nomeDosLocais [])
+            let flags = [FlagWithArg "-w" "10", FlagWithArg "-w" "5"]
+            obterAgendaParaProximosQuinzeDias local
+            selecionado <- gumTable ("./Agenda/" ++ local ++ "Temp.csv")
+            excluirArquivoTemporario local
+            let parsedData = parseCSV selecionado
+            case parsedData of
+                [CSVRow [date, time, _, _, _]] -> do
+                    criarEventoService nomeEvento local (Models.UsuarioInstituicao.getMatricula instituicao) date time capacidade
+                    runAgendamentosInstScreen (eitherToMaybe (Left instituicao))
                 _ -> putStrLn "Formato CSV Inválido!" >> return ExitScreen
 
 runExitScreen :: IO Screen

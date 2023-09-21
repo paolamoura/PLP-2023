@@ -23,7 +23,7 @@ data Evento = Evento
     { nome :: String
     , instituicao :: String
     , local :: String
-    , dataEvento :: Day
+    , dataEvento :: String
     , hora :: String
     , inscritos :: [String]
     , capacidade :: Int
@@ -38,7 +38,7 @@ instance ToNamedRecord Evento where
         [ "Nome" .= nome evento
         , "Instituicao" .= instituicao evento
         , "Local" .= local evento
-        , "DataEvento" .= show (dataEvento evento)
+        , "DataEvento" .= dataEvento evento
         , "Hora" .= hora evento
         , "Inscritos" .= intercalate "," (inscritos evento)
         , "Capacidade" .= capacidade evento
@@ -50,7 +50,7 @@ instance FromNamedRecord Evento where
         <$> r .: "Nome"
         <*> r .: "Instituicao"
         <*> r .: "Local"
-        <*> (parseField =<< r .: "DataEvento")  -- Usar parseField com bind (<>) para analisar DataEvento
+        <*> r .: "DataEvento"  -- Usar parseField com bind (<>) para analisar DataEvento
         <*> r .: "Hora"
         <*> ((\s -> if s == "" then [] else DT.splitOn "," s) <$> r .: "Inscritos")
         <*> r .: "Capacidade"
@@ -73,7 +73,7 @@ instance ToRecord Evento where
         [ TE.encodeUtf8 (T.pack (nome evento))
         , TE.encodeUtf8 (T.pack (instituicao evento))
         , TE.encodeUtf8 (T.pack (local evento))
-        , TE.encodeUtf8 (T.pack (show (dataEvento evento)))
+        , TE.encodeUtf8 (T.pack (dataEvento evento))
         , TE.encodeUtf8 (T.pack (hora evento))
         , TE.encodeUtf8 (T.pack (intercalate "," (inscritos evento)))
         , toField (capacidade evento)
@@ -91,13 +91,13 @@ instance FromRecord Evento where
             inscritosStr <- v .! 5
             capacidadeEvento <- v .! 6
             vagasEvento <- v .! 7
-            let dataEvento = read dataEventoStr :: Day
+            let dataEvento = dataEventoStr
                 inscritos = if inscritosStr == "" then [] else DT.splitOn "," inscritosStr
             return $ Evento nomeEvento instituicaoEvento localEvento dataEvento horaEvento inscritos capacidadeEvento vagasEvento
         | otherwise = fail "Invalid record length"
 
 -- Função para criar um novo evento
-criarEvento :: String -> String -> String -> Day -> String -> Int -> IO Bool
+criarEvento :: String -> String -> String -> String -> String -> Int -> IO Bool
 criarEvento n i l d h capacidade = do
     let vagas = "0/" ++ show capacidade
     let novoEvento = Evento n i l d h [] capacidade vagas
