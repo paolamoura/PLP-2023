@@ -28,9 +28,22 @@ executable PLP2023
     -- Modules included in this executable, other than Main.
     other-modules:
         Utils.Gum
+        Utils.Parser
+        Utils.GraphicView
         Menu.MenuPrincipal
         Models.Usuario
+        Models.Evento
+        Models.UsuarioInstituicao
+        Services.CriarLocalService
+        Services.AlocarHorarioService
+        Services.DesalocarHorarioService
+        Services.CriarEventoService
+        Services.EstatisticaService
         Login.CadastraLogin
+        Login.CadastraLoginInstituicao
+        Local.Local
+        Local.Util
+        Local.Agenda
     
 
     -- LANGUAGE extensions used by modules in this package.
@@ -44,6 +57,9 @@ executable PLP2023
         csv-conduit >= 0.7 && < 0.8,
         vector,
         split,
+        time,
+        gnuplot,
+        containers,
         process,
         parsec,
         bytestring >= 0.11 && < 0.12,
