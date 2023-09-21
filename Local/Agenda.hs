@@ -215,14 +215,32 @@ alocaUpdateCSV fileName targetDate targetTime newResponsavel = do
     adicionarElemento novoElemento lista =
         insertionSortByFourDigits (lista ++ [novoElemento])
 
+-- Método para verificar se a matrícula está agendada ou na lista de espera
+hasSchedule :: String -> String -> IO Bool
+hasSchedule matricula nomeLocal = do
+    agenda <- obterAgendaParaProximosQuinzeDias nomeLocal
+    -- Verifica se a matrícula está presente como responsável em alguma entrada da agenda
+    let responsavelPresente = any (\entry -> responsavel entry == matricula) agenda
+    -- Verifica se a matrícula está presente em alguma lista de espera
+    let listaEsperaPresente = any (\entry -> matricula `elem` listaEspera entry) agenda
+    return (responsavelPresente || listaEsperaPresente)
+
 -- Função para alocar um usuário na agenda
 aloca :: String -> String -> String -> String -> IO ()
-aloca nomeLocal dia hora responsavel = do
+aloca nomeLocal dia hora matricula = do
     let fileName = "./Agenda/" ++ nomeLocal ++ "Agenda.csv"
-    success <- alocaUpdateCSV fileName dia hora responsavel
-    if success
-        then putStrLn "CSV atualizado com sucesso."
-        else putStrLn "Falha na atualização do CSV."
+    
+    -- Verifique se a matrícula já possui um agendamento no local ou está na lista de espera
+    hasMatricula <- hasSchedule matricula nomeLocal
+
+    if hasMatricula
+        then putStrLn "Você já possui um agendamento nesse local ou um agendamento pendente nesse local."
+        else do
+            success <- alocaUpdateCSV fileName dia hora matricula
+            if success
+                then putStrLn "CSV atualizado com sucesso."
+                else putStrLn "Falha na atualização do CSV."
+
 
 contagemDiasDaSemana :: String -> IO [Int]
 contagemDiasDaSemana nomeLocal = do
