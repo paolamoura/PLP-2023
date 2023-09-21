@@ -195,10 +195,9 @@ runDesinscreverEvento usuario = do
             putStrLn "Instituição não se desinscreve" >> return ExitScreen
 runAgendamentosInstScreen :: Maybe UsuarioInstituicao -> IO Screen
 runAgendamentosInstScreen (Just instituicao) = do
-    screen <- gum (Choose ["Solicitar Evento", "Cancelar Evento", "Voltar", "Sair"] [])
+    screen <- gum (Choose ["Solicitar Evento", "Voltar", "Sair"] [])
     case screen of
         "Solicitar Evento" -> runCriarEvento (Right instituicao)
-        "Cancelar Evento" -> runCancelarAgendamento (Right instituicao)
         "Voltar" -> runLoginScreen
         "Sair" -> return ExitScreen
         _ -> do
