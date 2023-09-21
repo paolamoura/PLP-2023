@@ -29,6 +29,7 @@ executable PLP2023
     other-modules:
         Utils.Gum
         Utils.Parser
+        Utils.GraphicView
         Menu.MenuPrincipal
         Models.Usuario
         Models.Evento

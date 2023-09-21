@@ -1,5 +1,6 @@
 import Utils.Gum
 import Utils.Parser
+import Utils.GraphicView
 import Login.CadastraLogin (fazerCadastro, fazerLogin)
 import Login.CadastraLoginInstituicao (fazerCadastro, fazerLogin)
 import Models.Usuario (Usuario, confereSenha, getMatricula)
@@ -155,7 +156,7 @@ runAgendamentosUserScreen (Just usuario) = do
 
 runAgendamentosInstScreen :: Maybe UsuarioInstituicao -> IO Screen
 runAgendamentosInstScreen (Just instituicao) = do
-    screen <- gum (Choose ["Solicitar Evento", "Cancelar Evento", "Sair"] [])
+    screen <- gum (Choose ["Solicitar Evento", "Cancelar Evento", "Voltar", "Sair"] [])
     case screen of
         "Solicitar Evento" -> runSolicitarAgendamento (Right instituicao)
         "Cancelar Evento" -> runCancelarAgendamento (Right instituicao)
@@ -167,10 +168,10 @@ runAgendamentosInstScreen (Just instituicao) = do
 
 runAgendamentosAdmScreen :: IO Screen
 runAgendamentosAdmScreen = do
-    screen <- gum (Choose ["Criar Local", "Estatísticas", "Solicitar Agendamento", "Cancelar Agendamento","Sair"] [])
+    screen <- gum (Choose ["Criar Local", "Estatísticas", "Voltar", "Sair"] [])
     case screen of
         "Criar Local" ->  runCriarLocalScreen
-        "Estatísticas" -> putStrLn "Estatísticas mostradas!" >> return ExitScreen
+        "Estatísticas" -> runEstatiscasScreen
         "Voltar" -> runLoginScreen
         "Sair" -> return ExitScreen
 
@@ -184,6 +185,17 @@ runCriarLocalScreen = do
 
     criarLocal nomeLocal recursos capacidade
 
+    runAgendamentosAdmScreen
+
+runEstatiscasScreen :: IO Screen
+runEstatiscasScreen = do
+    let locaisPuros = getLocaisPuros
+    let nomeDosLocais = getNomesLocais locaisPuros
+    local <- gum (Choose nomeDosLocais [])
+    printarGraficoGeral
+    printarGraficoLocal local
+    putStrLn "Aperte Enter para voltar..."
+    getLine
     runAgendamentosAdmScreen
 
 -- Função para a Tela de Solicitar Agendamento

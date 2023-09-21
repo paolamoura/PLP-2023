@@ -4,7 +4,7 @@ module Services.EstatisticaService (
 ) where
 
 import Local.Local
-import Local.Agenda (contagemDiasDaSemana)
+import Local.Agenda (contagemDiasDaSemana, excluirArquivoTemporario)
 import Control.Monad (foldM)
 
 -- Função para somar duas listas elemento a elemento
@@ -21,6 +21,7 @@ somaInteressesTotal = do
     somaTotal <- foldM (\soma nomeLocal -> do
         contagemLocal <- contagemDiasDaSemana nomeLocal
         let somaLocal = somaListas soma contagemLocal
+        excluirArquivoTemporario nomeLocal
         return somaLocal)
         (replicate 5 0) nomesLocais
     return $ zip diasDaSemana somaTotal
@@ -29,4 +30,5 @@ somaInteresses :: String -> IO [(String, Int)]
 somaInteresses nomeLocal = do
     contagemLocal <- contagemDiasDaSemana nomeLocal
     let diasDaSemana = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta"]
+    excluirArquivoTemporario nomeLocal
     return $ zip diasDaSemana contagemLocal
