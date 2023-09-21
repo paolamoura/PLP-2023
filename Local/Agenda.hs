@@ -9,7 +9,7 @@ module Local.Agenda (
     writeAgendaLocal,
     printAgenda,
     desaloca,
-    contagemDiasDaSemana
+    contagemDiasDaSemana,
     excluirArquivoTemporario,
     obterAgendaParaProximosQuinzeDias
 ) where
@@ -226,7 +226,7 @@ aloca nomeLocal dia hora responsavel = do
 
 contagemDiasDaSemana :: String -> IO [Int]
 contagemDiasDaSemana nomeLocal = do
-    agenda <- obterAgendaParaProximosTrintaDias nomeLocal
+    agenda <- obterAgendaParaProximosQuinzeDias nomeLocal
     let contagem = replicate 5 0  -- Lista de 5 zeros para representar os dias da semana
     return $ foldl contarDiasDaSemana contagem agenda
   where
