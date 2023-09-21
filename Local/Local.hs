@@ -1,4 +1,4 @@
-module Local.Local (Local(Local), Locais(Locais),
+module Local.Local (Local(..), Locais(Locais),
     --getIdLocal,
     getCapacidadeLocal,
     getLocais,
@@ -6,9 +6,11 @@ module Local.Local (Local(Local), Locais(Locais),
     getLocaisFromLista,
     getLocaisPuros,
     getNomesLocais,
+    getNomesLocaisCSV,
     --getLocalPeloId,
     localToString,
     getNomeLocal,
+    getLocalPorNome,
     -- getRecursosList,
     getRecursosLocal,
     getRecursosLocais,
@@ -68,6 +70,10 @@ getNomesLocais = map (dropPrefix "Nome: ") . map getNomeLocal
   where
     dropPrefix prefix str = if prefix `isPrefixOf` str then drop (length prefix) str else str
 
+getNomesLocaisCSV :: IO [String]
+getNomesLocaisCSV = do
+    locais <- getLocaisFromList
+    return $ getNomesLocais locais
 
 getRecursosLocal :: Local -> [String]
 getRecursosLocal Local {recursosLocal = r} = r
@@ -139,6 +145,10 @@ getLocaisPuros = unsafePerformIO getLocaisFromList :: [Local]
 --         , capacidadeLocal = read (local !! 3) :: Int
 --         }
 --     | otherwise = Nothing
+getLocalPorNome :: String -> IO (Maybe Local)
+getLocalPorNome nomeDesejado = do
+    locais <- getLocaisFromList
+    return $ find (\local -> getNomeLocal local == nomeDesejado) locais
 
 getLocaisFromList :: IO [Local]
 getLocaisFromList = do
