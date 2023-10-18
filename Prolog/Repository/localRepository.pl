@@ -17,6 +17,8 @@ saveLocal(Local) :-
 
 deleteById(Id) :- path(Path), data:delete(Path, Id).
 
-getById(Id, Local) :- path(Path), data:getById(Path, Id, Row), listToRow(Local, Row).
+getById(Id, Local) :- path(Path), listToRow(Local, Row), data:getById(Path, Id, Row). 
 
-getAllLocal(Locais) :- path(Path), data:getAllRows(Path, Rows), rowsToLists(Rows, Locais).
+getAllLocal(Locais) :- path(Path), rowsToLists(Rows, Locais), data:getAllRows(Path, Rows). 
+
+updateLocal(Id, Local) :- path(Path), listToRow(Local, Row), data:update(Path, Id, Row). 

@@ -20,3 +20,5 @@ deleteById(Id) :- path(Path), data:delete(Path, Id).
 getById(Id, Usuario) :- path(Path), data:getById(Path, Id, Row), listToRow(Usuario, Row).
 
 getAllUsuario(Usuarios) :- path(Path), data:getAllRows(Path, Rows), rowsToLists(Rows, Usuarios).
+
+updateUsuario(Id, Usuario) :- path(Path), listToRow(Usuario, Row), data:update(Path, Id, Row). 

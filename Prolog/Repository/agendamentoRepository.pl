@@ -17,6 +17,8 @@ saveAgendamento(Agendamento) :-
 
 deleteById(Id) :- path(Path), data:delete(Path, Id).
 
-getById(Id, Agendamento) :- path(Path), data:getById(Path, Id, Row), listToRow(Agendamento, Row).
+getById(Id, Agendamento) :- path(Path), listToRow(Agendamento, Row), data:getById(Path, Id, Row).
 
-getAllAgendamento(Agendamentos) :- path(Path), data:getAllRows(Path, Rows), rowsToLists(Rows, Agendamentos).
+getAllAgendamento(Agendamentos) :- path(Path), rowsToLists(Rows, Agendamentos), data:getAllRows(Path, Rows).
+
+updateAgendamento(Id, Agendamento) :- path(Path), listToRow(Agendamento, Row), data:update(Path, Id, Row). 

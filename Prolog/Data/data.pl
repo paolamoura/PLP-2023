@@ -1,4 +1,9 @@
-:- module(data, [save/2, delete/2, getById/3, getAllRows/2]).
+:- module(data, [save/2,
+    delete/2,
+    getById/3,
+    getAllRows/2,
+    update/3
+    ]).
 :- use_module(library(csv)).
 :- use_module("../Utils/conversors.pl").
 
@@ -16,7 +21,7 @@ save(FilePath, Data) :-
 
 % Remover Linha no CSV.
 deleteCSV([], _, []).
-deleteCSV([Row|T], Id, T) :- Row =.. [_, Id | _].
+deleteCSV([UpdatedRow|T], Id, T) :- UpdatedRow =.. [_, Id | _].
 deleteCSV([H|T], Id, [H|Out]) :- deleteCSV(T, Id, Out).
 
 delete(FilePath, Id) :-
@@ -28,8 +33,8 @@ delete(FilePath, Id) :-
 
 % Pega a linha pelo Id.
 getRowWithId([], _, []).
-getRowWithId([Row | _], Id, Row) :- Row =.. [_, Id | _], !.
-getRowWithId([_ | T], Id, Row) :- getRowWithId(T, Id, Row), !.
+getRowWithId([UpdatedRow | _], Id, UpdatedRow) :- UpdatedRow =.. [_, Id | _], !.
+getRowWithId([_ | T], Id, UpdatedRow) :- getRowWithId(T, Id, UpdatedRow), !.
 
 getById(FilePath, Id, ResultRow) :-
     atom_concat('Data/', FilePath, FullPath),
@@ -40,3 +45,15 @@ getById(FilePath, Id, ResultRow) :-
 getAllRows(FilePath, Rows) :- 
     atom_concat('Data/', FilePath, FullPath),
     lerCSV(FullPath, Rows).
+
+% Atualiza linha dado um id.
+update(FilePath, Id, UpdatedData) :-
+    atom_concat('Data/', FilePath, FullPath),
+    lerCSV(FullPath, File),
+    updateCSV(File, Id, UpdatedData, Saida),
+    csv_write_file(FullPath, Saida, [quote(false)]).
+
+updateCSV([_|T], -1, UpdatedData, [UpdatedData|T]) :- !.
+updateCSV([H|T], Id, UpdatedData, [H|UpdatedTail]) :-
+    NextId is Id - 1,
+    updateCSV(T, NextId, UpdatedData, UpdatedTail).
