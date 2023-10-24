@@ -28,7 +28,6 @@ delete(FilePath, Id) :-
     atom_concat('Data/', FilePath, FullPath),
     lerCSV(FullPath, File),
     deleteCSV(File, Id, Saida),
-    writeln(Saida),
     csv_write_file(FullPath, Saida).
 
 % Pega a linha pelo Id.

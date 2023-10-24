@@ -1,6 +1,7 @@
 :- module(agendamentoRepository, [saveAgendamento/1, deleteById/1, getById/2, getAllAgendamento/1]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
+:- use_module("../Utils/parsers.pl").
 
 % Fato dinâmico para gerar o id dos agentes
 id(0).
@@ -17,8 +18,8 @@ saveAgendamento(Agendamento) :-
 
 deleteById(Id) :- path(Path), data:delete(Path, Id).
 
-getById(Id, Agendamento) :- path(Path), listToRow(Agendamento, Row), data:getById(Path, Id, Row).
+getById(Id, Agendamento) :- path(Path), data:getById(Path, Id, Row), parseRow(Row, Agendamento).
 
-getAllAgendamento(Agendamentos) :- path(Path), rowsToLists(Rows, Agendamentos), data:getAllRows(Path, Rows).
+getAllAgendamento(Agendamentos) :- path(Path), data:getAllRows(Path, Rows), parseTable(Rows, Agendamentos).
 
-updateAgendamento(Id, Agendamento) :- path(Path), listToRow(Agendamento, Row), data:update(Path, Id, Row). 
+updateAgendamento(Id, Agendamento) :- path(Path), listToRow(Agendamento, Row), data:update(Path, Id, Row).

@@ -1,6 +1,7 @@
 :- module(localRepository, [saveLocal/1, deleteById/1, getById/2, getAllLocal/1]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
+:- use_module("../Utils/parsers.pl").
 
 % Fato dinâmico para gerar o id dos agentes
 id(0).
@@ -17,8 +18,8 @@ saveLocal(Local) :-
 
 deleteById(Id) :- path(Path), data:delete(Path, Id).
 
-getById(Id, Local) :- path(Path), listToRow(Local, Row), data:getById(Path, Id, Row). 
+getById(Id, Local) :- path(Path), data:getById(Path, Id, Row), parseRow(Row, Local). 
 
-getAllLocal(Locais) :- path(Path), rowsToLists(Rows, Locais), data:getAllRows(Path, Rows). 
+getAllLocal(Locais) :- path(Path), data:getAllRows(Path, Rows), parseTable(Rows, Locais). 
 
 updateLocal(Id, Local) :- path(Path), listToRow(Local, Row), data:update(Path, Id, Row). 
