@@ -13,7 +13,8 @@ path('local.csv').
 saveLocal(Local) :- 
     path(Path),
     id(ID), incrementa_id,
-    insertAndConvert(ID, Local, Row),
+    insertAtFirst(ID, Local, List),
+    parseList(List, Row),
     saveRow(Path, Row).
 
 deleteById(Id) :- path(Path), deleteRow(Path, Id).

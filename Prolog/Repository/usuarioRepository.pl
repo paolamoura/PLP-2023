@@ -13,7 +13,8 @@ path('usuarios.csv').
 saveUsuario(Usuario) :-
     path(Path),
     id(ID), incrementa_id,
-    insertAndConvert(ID, Usuario, Row),
+    insertAtFirst(ID, Usuario, List),
+    parseList(List, Row),
     saveRow(Path, Row).
 
 deleteById(Id) :- path(Path), deleteRow(Path, Id).

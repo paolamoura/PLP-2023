@@ -1,5 +1,5 @@
 :- module(conversors, [
-    insertAndConvert/3,
+    insertAtFirst/3,
     listToRow/2,
     rowsToLists/2,
     split/2
