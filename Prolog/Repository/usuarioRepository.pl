@@ -14,12 +14,12 @@ saveUsuario(Usuario) :-
     path(Path),
     id(ID), incrementa_id,
     insertAndConvert(ID, Usuario, Row),
-    data:save(Path, Row).
+    saveRow(Path, Row).
 
-deleteById(Id) :- path(Path), data:delete(Path, Id).
+deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
-getById(Id, Usuario) :- path(Path), data:getById(Path, Id, Row), parseRow(Row, Usuario).
+getById(Id, Usuario) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Usuario).
 
-getAllUsuario(Usuarios) :- path(Path), data:getAllRows(Path, Rows), parseTable(Rows, Usuarios).
+getAllUsuario(Usuarios) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Usuarios).
 
-updateUsuario(Id, Usuario) :- path(Path), listToRow(Usuario, Row), data:update(Path, Id, Row). 
+updateUsuario(Id, Usuario) :- path(Path), listToRow(Usuario, Row), updateRow(Path, Id, Row). 

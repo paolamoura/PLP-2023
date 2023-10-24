@@ -14,12 +14,12 @@ saveLocal(Local) :-
     path(Path),
     id(ID), incrementa_id,
     insertAndConvert(ID, Local, Row),
-    data:save(Path, Row).
+    saveRow(Path, Row).
 
-deleteById(Id) :- path(Path), data:delete(Path, Id).
+deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
-getById(Id, Local) :- path(Path), data:getById(Path, Id, Row), parseRow(Row, Local). 
+getById(Id, Local) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Local). 
 
-getAllLocal(Locais) :- path(Path), data:getAllRows(Path, Rows), parseTable(Rows, Locais). 
+getAllLocal(Locais) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Locais). 
 
-updateLocal(Id, Local) :- path(Path), listToRow(Local, Row), data:update(Path, Id, Row). 
+updateLocal(Id, Local) :- path(Path), listToRow(Local, Row), updateRow(Path, Id, Row). 
