@@ -39,33 +39,76 @@ menu(sair) :-
 
 % ========================================================
 
-% ==================== AGENDAMENTO =======================
+% ==================== AGENDAMENTO USUÁRIO =======================
 
 menu(agendamentoUsuario) :-
     abstract_menu(agendamentoUsuario, "AGENDAMENTO USUÁRIO").
 
-menu(agendamentoInstituicao) :-
-    abstract_menu(agendamentoInstituicao, "AGENDAMENTO INSTITUIÇÃO").
-
 menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
-menu(agendamentoListarScreen) :-
+menu(agendamentoUsuarioListarScreen) :-
     writeln("LISTAR!"),
     menu(agendamentoUsuario).
 
-menu(agendamentoCriarScreen) :-
+menu(agendamentoUsuarioCriarScreen) :-
     writeln("CRIAR!"),
     menu(agendamentoUsuario).
     
-menu(agendamentoDeletarScreen) :-
+menu(agendamentoUsuarioDeletarScreen) :-
     writeln("DELETAR!"),
     menu(agendamentoUsuario).
 
-menu(voltarAgendamentoScreen) :-
+menu(voltarAgendamentoUsuarioScreen) :-
     writeln("VOLTAR!"),
     menu(main).
      
+% =========================================================
+
+% ================= AGENDAMENTO INSTITUIÇÃO ====================
+
+menu(agendamentoInstituicao) :-
+    abstract_menu(agendamentoInstituicao, "AGENDAMENTO INSTITUIÇÃO").
+
+menu(agendamentoInstListarScreen) :-
+    writeln("LISTAR!"),
+    menu(agendamentoInstituicao).
+
+menu(agendamentoInstCriarScreen) :-
+    writeln("CRIAR!"),
+    menu(agendamentoInstituicao).
+    
+menu(agendamentoInstDeletarScreen) :-
+    writeln("DELETAR!"),
+    menu(agendamentoInstituicao).
+
+menu(voltarAgendamentoInstScreen) :-
+    writeln("VOLTAR!"),
+    menu(main).
+
+% =========================================================
+
+% ================= AGENDAMENTO INSTITUIÇÃO ====================
+
+menu(agendamentoAdm) :-
+    abstract_menu(agendamentoAdm, "AGENDAMENTO INSTITUIÇÃO").
+
+menu(agendamentoAdmListarScreen) :-
+    writeln("LISTAR!"),
+    menu(agendamentoAdm).
+
+menu(agendamentoAdmCriarScreen) :-
+    writeln("CRIAR!"),
+    menu(agendamentoAdm).
+    
+menu(agendamentoAdmDeletarScreen) :-
+    writeln("DELETAR!"),
+    menu(agendamentoAdm).
+
+menu(voltarAgendamentoAdmScreen) :-
+    writeln("VOLTAR!"),
+    menu(main).
+
 % =========================================================
 
 :- menu.
