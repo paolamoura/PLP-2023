@@ -2,7 +2,8 @@
     deleteRow/2,
     getByIdRow/3,
     getAllRows/2,
-    updateRow/3
+    updateRow/3,
+    getByMatriculaRow/3
     ]).
 :- use_module(library(csv)).
 :- use_module("../Utils/conversors.pl").
@@ -39,6 +40,16 @@ getByIdRow(FilePath, Id, ResultRow) :-
     atom_concat('Data/', FilePath, FullPath),
     lerCSV(FullPath, File),
     getRowWithId(File, Id, ResultRow).
+
+% Pega a linha pela Matricula.
+getRowWithMatricula([], _, []).
+getRowWithMatricula([UpdatedRow | _], Matricula, UpdatedRow) :- UpdatedRow =.. [_, _, Matricula | _], !.
+getRowWithMatricula([_ | T], Matricula, UpdatedRow) :- getRowWithMatricula(T, Matricula, UpdatedRow), !.
+
+getByMatriculaRow(FilePath, Matricula, ResultRow) :-
+    atom_concat('Data/', FilePath, FullPath),
+    lerCSV(FullPath, File),
+    getRowWithMatricula(File, Matricula, ResultRow).
 
 % Pega todas as linhas.
 getAllRows(FilePath, Rows) :- 
