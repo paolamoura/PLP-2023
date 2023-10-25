@@ -1,6 +1,7 @@
 :- module(LoginCadastro, [login/4, cadastro/4]).
 :- use_module('../../Models/Usuario/GetSetUsuario.pl').
 :- use_module('../../Repository/usuarioRepository.pl').
+:- use_module('../../Models/Usuario/ModelUsuario.pl').
 :- use_module('../../Utils/conversors.pl').
 
 login(Matricula, SenhaRequest, Usuario, Tipo) :-
@@ -31,7 +32,8 @@ cadastro(Matricula,Nome, Senha, Confirmacao) :-
     ;
         (Senha = Confirmacao ->
             % Senha e confirmação coincidem
-            saveUsuario([Matricula, Nome, Senha]),
+            createUsuario(Nome,Matricula,Senha, Usuario),
+            saveUsuario(Usuario),
             writeln('Cadastro bem-sucedido!')
         ;
             % Senha e confirmação não coincidem

@@ -41,30 +41,15 @@ getByIdRow(FilePath, Id, ResultRow) :-
     lerCSV(FullPath, File),
     getRowWithId(File, Id, ResultRow).
 
+% Pega a linha pela Matricula.
+getRowWithMatricula([], _, []).
+getRowWithMatricula([UpdatedRow | _], Matricula, UpdatedRow) :- UpdatedRow =.. [_, _, Matricula | _], !.
+getRowWithMatricula([_ | T], Matricula, UpdatedRow) :- getRowWithMatricula(T, Matricula, UpdatedRow), !.
 
 getByMatriculaRow(FilePath, Matricula, ResultRow) :-
     atom_concat('Data/', FilePath, FullPath),
     lerCSV(FullPath, File),
-    getRowsWithMatricula(File, Matricula, ResultRow).
-
-getRowsWithMatricula([], _, []).
-getRowsWithMatricula([Row | Rest], Matricula, ResultRows) :-
-    (getRowWithMatricula(Row, Matricula, UpdatedRow) ->
-        ResultRows = [UpdatedRow | OtherRows]
-    ;
-        ResultRows = OtherRows
-    ),
-    getRowsWithMatricula(Rest, Matricula, OtherRows).
-
-getRowWithMatricula(Row, Matricula, UpdatedRow) :-
-    nth1(2, Row, MatriculaNoCSV),  % Obtém o valor da segunda coluna (matrícula)
-    writeln('MatriculaNoCSV antes da unificação: '),
-    writeln(MatriculaNoCSV),
-    MatriculaNoCSV = Matricula,
-    writeln('Matricula depois da unificação: '),
-    writeln(Matricula),  % Adicione isso para depurar
-    UpdatedRow = Row.
-
+    getRowWithMatricula(File, Matricula, ResultRow).
 
 % Pega todas as linhas.
 getAllRows(FilePath, Rows) :- 

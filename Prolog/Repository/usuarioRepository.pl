@@ -17,7 +17,7 @@ saveUsuario(Usuario) :-
     parseList(List, Row),
     saveRow(Path, Row).
 
-getByMatricula(Matricula, Usuario) :- path(Path), getByMatriculaRow(Path, Matricula, Row), parseRow(Row, Usuario).
+getByMatricula(Matricula, Usuario) :- path(Path), atom_number(Matricula, MatriculaInt), getByMatriculaRow(Path, MatriculaInt, Row), parseRow(Row, Usuario).
 
 deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
