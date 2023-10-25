@@ -49,12 +49,12 @@ imprimir_locais([Id | Resto]) :-
 % Predicado para carregar os locais de um arquivo CSV (se existir)
 carregar_locais_csv :-
     retractall(local( _, _, _, _)),  % Remove locais existentes
-    csv_read_file('../Arquivos/Locais.csv', Rows, [functor(local)]),  % Lê o CSV
+    csv_read_file('Prolog/Data/local.csv', Rows, [functor(local)]),  % Lê o CSV
     maplist(assert, Rows).
 
 % Predicado para salvar os locais em um arquivo CSV
 salvar_locais_csv :-
-    tell('../Arquivos/Locais.csv'),
+    tell('Prolog/Data/local.csv'),
     salvar_locais_recursivo,  % Chama o predicado recursivo para salvar os locais
     told.
 
