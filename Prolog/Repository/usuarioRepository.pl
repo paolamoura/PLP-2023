@@ -23,4 +23,4 @@ getById(Id, Usuario) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Usu
 
 getAllUsuario(Usuarios) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Usuarios).
 
-updateUsuario(Id, Usuario) :- path(Path), listToRow(Usuario, Row), updateRow(Path, Id, Row). 
+updateUsuario(Id, Usuario) :- path(Path), listToRow(Usuario, Row), updateRow(Path, Id, Row).
