@@ -21,7 +21,7 @@ menu(cadastro) :-
     input(['--password', '--placeholder=Digite a senha...'], Senha),
     input(['--password', '--placeholder=Digite a senha...'], ConfirmarSenha),
     % cadastrarUsuario(Matricula, Senha, ConfirmarSenha, Sessao),
-    changeScreen(login, "Autenticado", NewScreen),
+    changeScreen(login, 'Autenticado', NewScreen),
     menu(NewScreen).
 
 menu(login) :-
@@ -29,12 +29,13 @@ menu(login) :-
     input(['--prompt=Matrícula: ', '--placeholder=Digite algo...'], Matricula),
     input(['--password', '--placeholder=Digite a senha...'], Senha),
     % autenticar(Matricula, Senha, Sessao),
-    changeScreen(login, "Autenticado", NewScreen),
+    changeScreen(login, 'Autenticado', NewScreen),
     menu(NewScreen).
 
 menu(sair) :-
     tty_clear,
-    writeln("ATÉ A PRÓXIMA").
+    writeln("ATÉ A PRÓXIMA"),
+    halt. 
 
 % ========================================================
 
@@ -49,6 +50,22 @@ menu(agendamentoInstituicao) :-
 menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
+menu(agendamentoListarScreen) :-
+    writeln("LISTAR!"),
+    menu(agendamentoUsuario).
+
+menu(agendamentoCriarScreen) :-
+    writeln("CRIAR!"),
+    menu(agendamentoUsuario).
+    
+menu(agendamentoDeletarScreen) :-
+    writeln("DELETAR!"),
+    menu(agendamentoUsuario).
+
+menu(voltarAgendamentoScreen) :-
+    writeln("VOLTAR!"),
+    menu(main).
+     
 % =========================================================
 
 :- menu.

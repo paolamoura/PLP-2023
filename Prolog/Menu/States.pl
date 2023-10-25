@@ -12,6 +12,10 @@ screen(login).
 screen(agendamentoInstituicao).
 screen(agendamentoUsuario).
 screen(agendamentoAdm).
+screen(agendamentoListarScreen).
+screen(agendamentoCriarScreen).
+screen(agendamentoDeletarScreen).
+screen(voltarAgendamentoScreen).
 
 
 % LEMBRAR DE REMOVER OS COMENTÁRIOS E TIRAR AUTENTICADO POR
@@ -21,38 +25,42 @@ screen(agendamentoAdm).
 transition(main, 'Login', login).
 transition(main, 'Cadastro', cadastro).
 transition(main, 'Sair', sair).
-transition(login, "Autenticado", agendamentoInstituicao).
-transition(cadastro, "Autenticado", agendamentoInstituicao).
-transition(login, "Autenticado", agendamentoUsuario).
-transition(cadastro, "Autenticado", agendamentoUsuario).
-transition(login, "Autenticado", agendamentoAdm).
-transition(cadastro, "Autenticado", agendamentoAdm).
+
+% LOGIN
+transition(login, 'Autenticado', agendamentoUsuario).
+% transition(login, 'Autenticado', agendamentoInstituicao).
+% transition(login, 'Autenticado', agendamentoAdm).
+
+% CADASTRO
+transition(cadastro, 'Autenticado', agendamentoUsuario).
+% transition(cadastro, 'Autenticado', agendamentoInstituicao).
+% transition(cadastro, 'Autenticado', agendamentoAdm).
+
+
+% AGENDAMENTOS USUÁRIO
+transition(agendamentoUsuario, 'Listar Agendamentos', agendamentoListarScreen).
+transition(agendamentoUsuario, 'Criar Agendamento', agendamentoCriarScreen).
+transition(agendamentoUsuario, 'Deletar Agendamento', agendamentoDeletarScreen).
+transition(agendamentoUsuario, 'Voltar', voltarAgendamentoScreen).
 
 % Escolhas
 choices(main, ['Login','Cadastro','Sair']).
-choices(cadastro, ['6','7','8','9','10']).
 choices(agendamentoInstituicao, [
     "Listar Eventos",
-    "Listar Evento",
     "Criar Evento",
     "Deletar Evento",
     "Voltar"
     ]).
 choices(agendamentoUsuario, [
     "Listar Agendamentos",
-    "Listar Agendamento",
     "Criar Agendamento",
     "Deletar Agendamento",
     "Voltar"
     ]).
 choices(agendamentoAdm, [
     "Listar Locais",
-    "Visualizar Local",
     "Criar Local",
     "Visualizar Estatísticas"
-    ]).
-choices(agendamentosUsuario, [
-
     ]).
 
 % Regra para mudar tela.
