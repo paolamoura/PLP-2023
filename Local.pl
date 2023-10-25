@@ -32,8 +32,7 @@ visualizar_local(Id) :-
 visualizar_locais :-
     findall(Id, local(Id, _, _, _), LocaisIds),
     write('Locais Disponíveis:'), nl,
-    imprimir_locais(LocaisIds),
-    visualizar_locais. 
+    imprimir_locais(LocaisIds).
 
 % Predicado auxiliar para imprimir a lista de locais
 imprimir_locais([]).
@@ -64,3 +63,9 @@ salvar_locais_recursivo :-
     format('~w,"~w",~w,"~w"~n', [Id, Nome, Capacidade, Recursos]),
     fail.  % Permite continuar a escrever os próximos locais
 salvar_locais_recursivo.  % Encerra o predicado recursivo 
+
+% Predicado para deletar um local por ID
+deletar_local(Id) :-
+    retract(local(Id, _, _, _)),  % Remove o local da base de dados
+    salvar_locais_csv.  % Salva os locais restantes no arquivo CSV
+ 
