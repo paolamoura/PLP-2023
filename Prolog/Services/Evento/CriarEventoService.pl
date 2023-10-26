@@ -1,20 +1,23 @@
-:- module(CriarEventoService, [criarEvento/11]).
+:- module(CriarEventoService, [criarEvento/7]).
 :- use_module('../../Models/Evento/ModelEvento.pl').
-:- use_module('../../Models/Agendamento/Agendamento.pl').
+:- use_module('../../Data/Agendamento.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
 :- use_module('../../Repository/eventoRepository.pl').
 
-agendamentoJaExiste(IdAgendamento) :-
-    getByIdAgendamento(IdAgendamento, Rows),
+agendamentoJaExiste(IdLocal,Data,Horario) :-
+    getByAgendamento(IdLocal,Data, Horario, Rows),
     Rows \= [].
 
-
-criarEvento(Nome, IdInstituicao, IdLocal, IdAgendamento, Inscritos, Capacidade, Vagas, Matricula, Data, Horario, Evento) :-
-    (agendamentoJaExiste(IdAgendamento) ->
+criarEvento(Nome, IdInstituicao, IdLocal, Matricula, Data, Horario, Evento) :-
+    (agendamentoJaExiste(IdLocal, Data, Horario) ->
         writeln('Erro: Horário já está ocupado!')
     ;
 
-        createEvento(Nome, IdInstituicao, IdLocal, IdAgendamento, Inscritos, Capacidade, Vagas, Evento),
+        createEvento(Nome, IdInstituicao, IdLocal, Data, Horario, Evento),
         saveEvento(Evento),
         agendar_compromisso(IdLocal, Data, Horario, Matricula)
         ).
+
+deletarEvento(IdEvento, IdLocal, Matricula, Data, Horario) :-
+    deleteEventoById(IdEvento),
+    desaloca(IdLocal, Matricula, Data, Horario).

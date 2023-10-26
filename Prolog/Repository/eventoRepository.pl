@@ -1,4 +1,4 @@
-:- module(eventoRepository, [saveEvento/1, deleteEventoById/1, getEventoById/2, getAllEvento/1, updateEvento/2, getByIdAgendamento/2]).
+:- module(eventoRepository, [saveEvento/1, deleteEventoById/1, getEventoById/2, getAllEvento/1, updateEvento/2, getByAgendamento/4]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
@@ -13,7 +13,7 @@ loadId :-
     path(Path),
     getLastRow(Path, LastRow),
     parseRow(LastRow, LastList),
-    (LastList = ['Id','Nome','Instituicao','Local','IdAgendamento','Inscritos','Capacidade','Vagas'] ->
+    (LastList = ['Id','Nome','Instituicao','Local','Data', 'Horario'] ->
         assertz(id(0))
     ;
         primeiro_elemento(LastList, LastId),
@@ -34,7 +34,7 @@ saveEvento(Evento) :-
     retractall(id(_)),
     assertz(id(NovoID)).
 
-getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamento, Row), parseRow(Row, Evento).
+getByAgendamento(IdLocal,Data, Horario, Evento) :- path(Path), getByAgendamentoRow(Path,IdLocal, Data, Horario, Row), parseRow(Row, Evento).
 
 deleteEventoById(Id) :- path(Path), deleteRow(Path, Id).
 

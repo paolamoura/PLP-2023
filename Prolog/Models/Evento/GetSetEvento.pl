@@ -4,37 +4,36 @@
 :- use_module('../../Utils/conversors.pl').
 
 getEventoNome(ID, Nome) :- 
-    getById(ID, Evento),
+    getEventoById(ID, Evento),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, Nome, _, _, _, _, _, _).
 
 getInstituicao(ID, IdInstituicao) :- 
-    getById(ID, Evento),
+    getEventoById(ID, Evento),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, _, IdInstituicao, _, _, _, _, _).
 
 getLocal(ID, Local) :- 
-    getById(ID, Evento),
+    getEventoById(ID, Evento),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, _, _, IdLocal, _, _, _, _).
 
 getIdAgendamento(ID, IdAgendamento) :- 
-    getById(ID, Evento),
+    getEventoById(ID, Evento),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, _, _, _, DataEvento, _, _, _).
 
 getInscritos(ID, Inscritos) :-
-    getById(ID, Evento),
+    getEventoById(ID, Evento),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, _, _, _, _, Inscritos, _, _).
 
 getCapacidade(ID, Capacidade) :-
-    getById(ID, Capacidade),
+    getEventoById(ID, Capacidade),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, _, _, _, _, _, Capacidade, _).
 
 getVagas(ID, Vagas) :-
-    getById(ID, Evento),
+    getEventoById(ID, Evento),
     listToEvent(Evento, Resultado),
     Resultado = evento(_, _, _, _, _, _, _, Vagas).
-
