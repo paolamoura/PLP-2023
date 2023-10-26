@@ -27,7 +27,7 @@ saveEvento(Evento) :-
     parseList(List, Row),
     saveRow(Path, Row).
 
-getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamentoInt, Row), parseRow(Row, Evento).
+getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamento, Row), parseTable(Row, Evento).
 
 deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
