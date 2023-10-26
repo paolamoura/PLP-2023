@@ -21,7 +21,7 @@ deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
 getById(Id, Agendamento) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Agendamento).
 
-getAgendamentosByMatriculaRep(Matricula, Agendamentos) :- path(Path), atom_number(Matricula, MatriculaInt), getAgendamentosByMatriculaRow(Path, MatriculaInt, Row), parseRow(Row, Agendamentos).
+getAgendamentosByMatriculaRep(Matricula, Agendamentos) :- path(Path), atom_number(Matricula, MatriculaInt), getAgendamentosByMatriculaRow(Path, MatriculaInt, Row), parseTable(Row, Agendamentos).
 
 getAll(Agendamentos) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Agendamentos).
 
