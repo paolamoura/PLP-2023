@@ -6,7 +6,7 @@
 % Carrega os compromissos a partir de um arquivo CSV existente
 carregar_compromissos :-
     limpar_banco_compromissos,
-    open('../agenda.csv', read, Stream),
+    open('../../Data/agenda.csv', read, Stream),
     read_lines(Stream, Lines),
     close(Stream),
     maplist(processar_linha, Lines).
@@ -58,7 +58,7 @@ strings_concatenadas(String, Separador, Lista) :-
 % Salva os compromissos no arquivo CSV
 salvar_compromissos :-
     findall(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEspera), Compromissos),
-    open('agenda.csv', write, Stream, [encoding(utf8)]),
+    open('../../Data/agenda.csv', write, Stream, [encoding(utf8)]),
     (   maplist(format_compromisso_line(Stream), Compromissos)
     ->  close(Stream),
         write('Compromissos salvos com sucesso!'), nl
