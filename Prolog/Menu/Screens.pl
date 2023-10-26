@@ -26,5 +26,5 @@ screen(agendamentoAdm).
 screen(agendamentoAdmituicao).
 screen(agendamentoAdmListarScreen).
 screen(agendamentoAdmCriarScreen).
-screen(agendamentoAdmDeletarScreen).
+screen(agendamentoEstatiscaScreen).
 screen(voltarAgendamentoAdmScreen).

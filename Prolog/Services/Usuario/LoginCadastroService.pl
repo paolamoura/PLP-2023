@@ -13,6 +13,8 @@ login(Matricula, SenhaRequest, Usuario, Tipo) :-
             Tipo = "Instituicao"
         ; PrimeiroCaractereMatricula = '1' ->
             Tipo = "Usuario"
+        ; PrimeiroCaractereMatricula = '9' ->
+            Tipo = "ADM"
         ; % Adicione mais casos conforme necessário
             Tipo = "Desconhecido"
         )

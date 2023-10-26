@@ -1,8 +1,12 @@
+% Importação services
+:- use_module("../Services/Usuario/LoginCadastroService.pl").
+
+
 :- use_module("../Utils/gum.pl").
 :- use_module("./States.pl").
 
 abstract_menu(CurrentScreen, Header) :-
-    % tty_clear,
+    tty_clear,
     writeln(Header),
     choices(CurrentScreen, Choices),
     choose(Choices, Choosen),
@@ -16,26 +20,29 @@ menu(main) :-
     abstract_menu(main, "BEM-VINDO À SGCE-UFCG").
 
 menu(cadastro) :-
+    tty_clear,
     writeln("CADASTRO!"),
     input(['--prompt=Matrícula: ', '--placeholder=Digite algo...'], Matricula),
+    input(['--prompt=Nome: ', '--placeholder=Digite algo...'], Nome),
     input(['--password', '--placeholder=Digite a senha...'], Senha),
     input(['--password', '--placeholder=Digite a senha...'], ConfirmarSenha),
-    % cadastrarUsuario(Matricula, Senha, ConfirmarSenha, Sessao),
-    changeScreen(login, 'Autenticado', NewScreen),
+    cadastro(Matricula, Nome, Senha, ConfirmarSenha),
+    changeScreen(cadastro, 'Cadastrado', NewScreen),
     menu(NewScreen).
 
 menu(login) :-
+    tty_clear,
     writeln("LOGIN!"),
     input(['--prompt=Matrícula: ', '--placeholder=Digite algo...'], Matricula),
     input(['--password', '--placeholder=Digite a senha...'], Senha),
-    % autenticar(Matricula, Senha, Sessao),
-    changeScreen(login, 'Autenticado', NewScreen),
+    login(Matricula, Senha, _, Sessao),
+    changeScreen(login, Sessao, NewScreen),
     menu(NewScreen).
 
 menu(sair) :-
-    % tty_clear,
+    tty_clear,
     writeln("ATÉ A PRÓXIMA"),
-    halt. 
+    halt.
 
 % ========================================================
 
@@ -48,15 +55,15 @@ menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
 menu(agendamentoUsuarioListarScreen) :-
-    writeln("LISTAR!"),
+    writeln("LISTAR Agendamento!"),
     menu(agendamentoUsuario).
 
 menu(agendamentoUsuarioCriarScreen) :-
-    writeln("CRIAR!"),
+    writeln("CRIAR Agendamento!"),
     menu(agendamentoUsuario).
     
 menu(agendamentoUsuarioDeletarScreen) :-
-    writeln("DELETAR!"),
+    writeln("DELETAR Agendamento!"),
     menu(agendamentoUsuario).
 
 menu(voltarAgendamentoUsuarioScreen) :-
@@ -71,15 +78,15 @@ menu(agendamentoInstituicao) :-
     abstract_menu(agendamentoInstituicao, "AGENDAMENTO INSTITUIÇÃO").
 
 menu(agendamentoInstListarScreen) :-
-    writeln("LISTAR!"),
+    writeln("LISTAR Eventos!"),
     menu(agendamentoInstituicao).
 
 menu(agendamentoInstCriarScreen) :-
-    writeln("CRIAR!"),
+    writeln("CRIAR Eventos!"),
     menu(agendamentoInstituicao).
     
 menu(agendamentoInstDeletarScreen) :-
-    writeln("DELETAR!"),
+    writeln("DELETAR Eventos!"),
     menu(agendamentoInstituicao).
 
 menu(voltarAgendamentoInstScreen) :-
@@ -94,15 +101,15 @@ menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO INSTITUIÇÃO").
 
 menu(agendamentoAdmListarScreen) :-
-    writeln("LISTAR!"),
+    writeln("LISTAR LOCAIS!"),
     menu(agendamentoAdm).
 
 menu(agendamentoAdmCriarScreen) :-
-    writeln("CRIAR!"),
+    writeln("CRIAR LOCAL!"),
     menu(agendamentoAdm).
     
-menu(agendamentoAdmDeletarScreen) :-
-    writeln("DELETAR!"),
+menu(agendamentoEstatiscaScreen) :-
+    writeln("Visualizar Estatística"),
     menu(agendamentoAdm).
 
 menu(voltarAgendamentoAdmScreen) :-
