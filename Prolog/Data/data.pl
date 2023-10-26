@@ -4,7 +4,8 @@
     getAllRows/2,
     updateRow/3,
     getByMatriculaRow/3,
-    getLastRow/2
+    getLastRow/2,
+    getByIdAgendamentoRow/3
     ]).
 :- use_module(library(csv)).
 :- use_module("../Utils/conversors.pl").
@@ -63,6 +64,16 @@ getByMatriculaRow(FilePath, Matricula, ResultRow) :-
     atom_concat('Data/', FilePath, FullPath),
     lerCSV(FullPath, File),
     getRowWithMatricula(File, Matricula, ResultRow).
+
+% Pega a linha pelo IdAgendamento.
+getRowWithIdAgendamento([], _, []).
+getRowWithIdAgendamento([UpdatedRow | _], IdAgendamento, UpdatedRow) :- UpdatedRow =.. [_, _, _, _, _, IdAgendamento | _], !.
+getRowWithIdAgendamento([_ | T], IdAgendamento, UpdatedRow) :- getRowWithIdAgendamento(T, IdAgendamento, UpdatedRow), !.
+
+getByIdAgendamentoRow(FilePath, IdAgendamento, ResultRow) :-
+    atom_concat('Data/', FilePath, FullPath),
+    lerCSV(FullPath, File),
+    getRowWithIdAgendamento(File, IdAgendamento, ResultRow).
 
 % Pega todas as linhas.
 getAllRows(FilePath, Rows) :- 
