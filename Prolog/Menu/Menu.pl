@@ -2,7 +2,7 @@
 :- use_module("./States.pl").
 
 abstract_menu(CurrentScreen, Header) :-
-    tty_clear,
+    % tty_clear,
     writeln(Header),
     choices(CurrentScreen, Choices),
     choose(Choices, Choosen),
@@ -33,7 +33,7 @@ menu(login) :-
     menu(NewScreen).
 
 menu(sair) :-
-    tty_clear,
+    % tty_clear,
     writeln("ATÉ A PRÓXIMA"),
     halt. 
 
