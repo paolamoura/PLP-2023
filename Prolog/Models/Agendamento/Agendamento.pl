@@ -1,21 +1,44 @@
 :- use_module(library(csv)).
-:- dynamic compromisso/5.  % Definindo a estrutura da agenda: ID, Data, Horário, Responsável, Lista de Espera
+:- dynamic compromisso/5.
 
 % Carrega os compromissos a partir de um arquivo CSV existente
 carregar_compromissos :-
+    limpar_banco_compromissos,
     csv_read_file('../../Data/agendamentos.csv', Rows, [functor(compromisso), arity(5)]),
-    maplist(format_lista_espera_lista, Rows, FormattedCompromissos),
-    maplist(assert, FormattedCompromissos).
+    maplist(processar_compromisso, Rows).
 
-% Converte a lista de espera de uma string em uma lista
-format_lista_espera_lista(compromisso(ID, Data, Horario, Responsavel, ListaEsperaStr), compromisso(ID, Data, Horario, Responsavel, ListaEspera)) :-
-    atomic_list_concat(Atoms, ',', ListaEsperaStr),
-    maplist(atom_string, Atoms, ListaEspera).
+% Limpa o banco de dados de compromissos
+limpar_banco_compromissos :-
+    retractall(compromisso(_, _, _, _, _)).
+
+% Processar cada linha do CSV
+processar_compromisso(compromisso(ID, Data, Horario, Responsavel, ListaEsperaStr)) :-
+    \+ compromisso(ID, _, _, _, _),
+    nonvar(ID),
+    nonvar(Data),
+    nonvar(Horario),
+    nonvar(Responsavel),
+    
+    % Remover vírgula no final, se presente
+    (   sub_atom(ListaEsperaStr, _, 1, 0, ',')
+    ->  sub_atom(ListaEsperaStr, 0, _, 1, ListaEsperaStrSemVirgula)
+    ;   ListaEsperaStrSemVirgula = ListaEsperaStr
+    ),
+    
+    % Verifique se a ListaEsperaStr é uma string vazia
+    (   ListaEsperaStrSemVirgula = ''
+    ->  ListaEspera = []
+    ;   Separador = ',',
+        atomic_list_concat(Atoms, Separador, ListaEsperaStrSemVirgula),
+        maplist(atom_string, Atoms, ListaEspera),
+        include(\=(''), ListaEspera, ListaEspera) % Remova átomos vazios
+    ),
+    
+    assert(compromisso(ID, Data, Horario, Responsavel, ListaEspera)).
 
 % Salva os compromissos no arquivo CSV
 salvar_compromissos :-
     findall(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEspera), Compromissos),
-    % Converte a lista de espera de cada compromisso em uma string
     maplist(format_lista_espera_str, Compromissos, CompromissosStr),
     csv_write_file('../../Data/agendamentos.csv', CompromissosStr).
 
@@ -25,106 +48,83 @@ format_lista_espera_str(compromisso(ID, Data, Horario, Responsavel, ListaEspera)
 
 % Adiciona um novo compromisso à agenda se o idLocal, data e horário não existirem
 agendar_compromisso(IDLocal, Data, Horario, Responsavel) :-
-    % Verifica se o compromisso já existe para a mesma data e horário em algum local
+    carregar_compromissos,
     \+ compromisso( IDLocal, Data, Horario, _, _),
-    % Adiciona o compromisso
     assert(compromisso(IDLocal, Data, Horario, Responsavel, [])),
+    salvar_compromissos,
     write('Compromisso agendado com sucesso!'), nl,!.
 
-%---------------------------------------------------------------------
-% esse adiciona funciona, porem não tem a prioridade na lista de espera!
-
-% Adiciona um novo compromisso à agenda
-% agendar_compromisso(IDLocal, Data, Horario, NewResponsavel) :-
-    % Verifica se o compromisso já existe para o mesma data e horário no local
-    % compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera),
-    % Verifica se o responsável não está na lista de espera
-    % \+ member(NewResponsavel, ListaEspera),
-    % Adiciona o responsável à lista de espera
-    % retract(compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera)),
-    % assert(compromisso(IDLocal, Data, Horario, Responsavel, [NewResponsavel | ListaEspera])),
-    % write('Compromisso agendado na lista de espera com sucesso!'), nl.
-%-----------------------------------------------------------------------
-
-% Adiciona um novo compromisso à agenda com prioridade baseada nos 4 primeiros dígitos da matrícula
+% Adiciona um novo compromisso à agenda com lista de espera ordenada por matrícula
 agendar_compromisso(IDLocal, Data, Horario, NewResponsavel) :-
-    % Verifica se o compromisso já existe para a mesma data e horário no local
-    compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera), 
-    % Verifica se o responsável não está na lista de espera
+    carregar_compromissos,
+    compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera),
     \+ member(NewResponsavel, ListaEspera),
-    % Adiciona o responsável à lista de espera de forma ordenada
-    insert_with_priority(NewResponsavel, [Responsavel | ListaEspera], NewListaEspera),
-    % Ordene a lista de espera com base na prioridade
-    insertion_sort_priority(NewListaEspera, _),    
-    % Remove o compromisso anterior
+    inserir_ordenado_matricula(NewResponsavel, ListaEspera, NovaListaEspera),
     retract(compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera)),
-    % Adiciona o novo compromisso
-    assert(compromisso(IDLocal, Data, Horario, NewResponsavel, NewListaEspera)),
+    assert(compromisso(IDLocal, Data, Horario, Responsavel, NovaListaEspera)),
+    salvar_compromissos,
     write('Compromisso agendado na lista de espera com sucesso!'), nl.
 
-% Função para inserir um elemento na lista de espera com base na prioridade mantendo a ordem existente
-insert_with_priority(Element, [], [Element]).
-insert_with_priority(Element, [H|T], [Element, H|T]) :-
-    compare_priority(Element, H, Result),
-    Result =< 0,
-    !.
-insert_with_priority(Element, [H|T], [H|NewT]) :-
-    insert_with_priority(Element, T, NewT).
+% Predicado para inserir um elemento em uma lista ordenada por matrícula
+inserir_ordenado_matricula(X, [], [X]).
+inserir_ordenado_matricula(X, [H|T], [X|Resto]) :-
+    matricula_menor(X, H),
+    inserir_ordenado_matricula(H, T, Resto).
+inserir_ordenado_matricula(X, [H|T], [H|T1]) :-
+    \+ matricula_menor(X, H),
+    inserir_ordenado_matricula(X, T, T1).
 
-% Função para comparar a prioridade com base nos 4 primeiros dígitos da matrícula
-compare_priority(Responsavel1, Responsavel2, Result) :-
-    sub_atom(Responsavel1, 0, 4, _, Prefix1),
-    sub_atom(Responsavel2, 0, 4, _, Prefix2),
-    compare(Result, Prefix1, Prefix2).
-
-% Função para ordenar uma lista com base na prioridade
-insertion_sort_priority(List, Sorted) :-
-    insertion_sort_priority(List, [], Sorted).
-insertion_sort_priority([], Acc, Acc).
-insertion_sort_priority([H|T], Acc, Sorted) :-
-    insert_with_priority(H, Acc, NewAcc),
-    insertion_sort_priority(T, NewAcc, Sorted).
-
-%-----------------------------------------------------------------------
-
-% Desalocar se o usuário for o responsavel e a lista não for vazia
-desalocar(IDLocal, Data, Horario, Responsavel) :-
-    % Verifica se o compromisso existe para a mesma data e horário em algum local
-    compromisso( IDLocal, Data, Horario, Responsavel, [Primeiro|ListaEspera]),
-    assert(compromisso(IDLocal, Data, Horario, Primeiro, [ListaEspera])),
-    write('Compromisso agendado com sucesso!'), nl,!.
-
-%----------------------------------------------------------------------
-% esse desaloca não está deletando a linha inteira no csv! 
+% Predicado para comparar matrículas pelo critério dos 4 primeiros dígitos
+matricula_menor(X, Y) :-
+    sub_atom(X, 0, 4, _, DigitsX),
+    sub_atom(Y, 0, 4, _, DigitsY),
+    DigitsX @< DigitsY.
 
 % desaloca se ele for o responsavel e a lista vazia
 desalocar(IDLocal, Data, Horario, Responsavel) :-
-    % Verifica se o compromisso existe para o mesma data e horário no local
+    carregar_compromissos,
+    compromisso(IDLocal, Data, Horario, Responsavel, []),
+    retract(compromisso(IDLocal, Data, Horario, Responsavel, [])),
+    salvar_compromissos,
+    write('Desalocado com sucesso!'), nl,!.
+
+% Desaloca um compromisso se o usuário for o responsável e a lista não estiver vazia
+desalocar(IDLocal, Data, Horario, Responsavel) :-
+    carregar_compromissos,
+    compromisso(IDLocal, Data, Horario, Responsavel, [ProximoResponsavel|ListaEspera]),
+    retract(compromisso(IDLocal, Data, Horario, Responsavel, [ProximoResponsavel|ListaEspera])),
+    assert(compromisso(IDLocal, Data, Horario, ProximoResponsavel, ListaEspera)),
+    salvar_compromissos,
+    write('Compromisso desalocado com sucesso!'), nl,!.
+
+% Remove o usuário da lista de espera se ele não for o responsável
+desalocar(IDLocal, Data, Horario, Usuario) :-
+    carregar_compromissos,
     compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera),
-    % Adiciona o responsável à lista de espera
+    atom_para_string(Usuario, StringUsuario),
+    meu_member(StringUsuario, ListaEspera),
+    remover(StringUsuario ,ListaEspera, NovaListaEspera),
     retract(compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera)),
-    write('Desalocado com sucesso!'), nl,!.
+    assert(compromisso(IDLocal, Data, Horario, Responsavel, NovaListaEspera)),
+    salvar_compromissos,
+    write('Usuário removido da lista de espera com sucesso!'), nl.
 
-%-------------------------------------------------------------------
-% esse desaloca não foi 100% testado!
+% Converte um átomo em uma string
+atom_para_string(Atom, String) :-
+    atom_string(Atom, String).
 
-% desaloca se ele não for o responsavel e a lista não vazia
-desalocar(IDLocal, Data, Horario, NewResponsavel) :-
-    % Verifica se o compromisso existe para o mesma data e horário no local
-    compromisso(IDLocal, Data, Horario, Responsavel, ListaEspera),
-    member(NewResponsavel, ListaEspera),
-    remover(NewResponsavel, ListaEspera, NovaLista),
-    assert(compromisso(IDLocal, Data, Horario, Responsavel, [NovaLista])),
-    write('Desalocado com sucesso!'), nl,!.
+% Verifica se um elemento está na lista
+meu_member(_, []) :- false.
+meu_member(X, [X|_]).
+meu_member(X, [_|T]) :- meu_member(X, T).
 
 % Remover elemento da lista
 remover(X, [X|C], C):-!.
-remover(X, [Y|C], [Y|D]):-remover(X, C, D).
-
-%-----------------------------------------------------------------------
+remover(X, [Y|C], [Y|D]):- remover(X, C, D).
 
 % Lista os compromissos agendados
 listar_compromissos :-
+    carregar_compromissos,
     findall(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEspera), Compromissos),
     write('ID, Data, Horário, Responsável, Lista de Espera\n'),
     maplist(write_compromisso, Compromissos).
@@ -140,9 +140,3 @@ write_compromisso(compromisso(ID, Data, Horario, Responsavel, ListaEspera)) :-
 % Converte a lista de espera em uma string
 format_lista_espera_write(compromisso(_, _, _, _, ListaEspera), ListaEsperaStr) :-
     atomic_list_concat(ListaEspera, ', ', ListaEsperaStr).
-
-% Obtém o próximo ID disponível
-get_next_id(ID) :-
-    findall(ID, compromisso(ID, _, _, _, _), IDs),
-    max_list(IDs, MaxID),
-    ID is MaxID + 1.
