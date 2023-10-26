@@ -1,6 +1,8 @@
 % Importação services
 :- use_module("../Services/Usuario/LoginCadastroService.pl").
 :- use_module("../Services/Local/CriarLocalService.pl").
+:- use_module("../Services/Evento/CriarEventoService.pl").
+
 
 % Importação Repositories
 :- use_module("../Repository/agendamentoRepository.pl").
@@ -8,7 +10,7 @@
 :- use_module("../Repository/localRepository.pl").
 
 % Importação Models
-% :- use_module("../Models/Agendamento/Agendamento.pl").
+:- use_module("../Models/Agendamento/Agendamento.pl").
 
 :- use_module("../Utils/gum.pl").
 :- use_module("../Utils/conversors.pl").
@@ -19,7 +21,7 @@
 :- use_module("./States.pl").
 
 abstract_menu(CurrentScreen, Header) :-
-    tty_clear,
+    % tty_clear,
     writeln(Header),
     choices(CurrentScreen, Choices),
     choose(Choices, Choosen),
@@ -117,6 +119,7 @@ menu(agendamentoInstListarScreen) :-
 menu(agendamentoInstCriarScreen) :-
     usuarioAtual(Usuario),
     nth1(2, Usuario, Matricula),
+    nth1(1, Usuario, IdInstituicao),
     input(['--prompt=Nome do Evento: ', '--placeholder=Digite algo...'], NomeEvento),
     localRepository:getAllLocal(Locais),
     parseOpcoes([1, 2], Locais, Opcoes),
@@ -126,7 +129,7 @@ menu(agendamentoInstCriarScreen) :-
     generate_dates(15, Datas),
     choose(Datas, Data),
     choose(["8 horas", "9 horas", "14 horas", "15 horas"], Horario),
-    % criarEvento(Matricula, NomeEvento, IdLocal, Data, Horario)
+    criarEvento(NomeEvento, IdInstituicao, IdLocal, Matricula, Data, Horario, _),
     menu(agendamentoInstituicao).
 
 menu(agendamentoInstDeletarScreen) :-
@@ -171,4 +174,4 @@ menu(voltarAgendamentoAdmScreen) :-
 
 % =========================================================
 
-:- menu.
+:- carregar_compromissos,menu.

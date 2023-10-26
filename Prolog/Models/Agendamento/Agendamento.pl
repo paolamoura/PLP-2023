@@ -1,4 +1,4 @@
-:- module(Agendamento, [agendar_compromisso/4, desaloca/4]).
+:- module(Agendamento, [agendar_compromisso/4, desalocar/4, carregar_compromissos/0]).
 :- use_module(library(csv)).
 :- dynamic compromisso/5.
 

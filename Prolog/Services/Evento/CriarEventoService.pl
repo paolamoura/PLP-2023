@@ -1,4 +1,4 @@
-:- module(CriarEventoService, [criarEvento/7]).
+:- module(criarEventoService, [criarEvento/7, deletarEvento/5]).
 :- use_module('../../Models/Evento/ModelEvento.pl').
 :- use_module('../../Models/Agendamento/Agendamento.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
@@ -20,4 +20,4 @@ criarEvento(Nome, IdInstituicao, IdLocal, Matricula, Data, Horario, Evento) :-
 
 deletarEvento(IdEvento, IdLocal, Matricula, Data, Horario) :-
     deleteEventoById(IdEvento),
-    desaloca(IdLocal, Matricula, Data, Horario).
+    desalocar(IdLocal, Matricula, Data, Horario).
