@@ -19,9 +19,9 @@ validarMatricula(Matricula) :-
         member(D4, ['1', '2']),
         forall(member(D, Rest), char_type(D, digit))
     ->
-        format('Matrícula ~w válida.~n', [Matricula])
+        writeln('Matrícula válida')
     ;
-        format('Erro: Matrícula ~w inválida.~n', [Matricula]),
+        writeln('Erro: Matrícula inválida'),
         false % Falso para indicar que a validação falhou
     ).
 
@@ -33,8 +33,8 @@ validarSenha(Senha) :-
         atom_chars(Senha, SenhaChars),
         forall(member(C, SenhaChars), char_type(C, ascii))
     ->
-        format('Senha ~w válida.~n', [Senha])
+        writeln('Senha válida')
     ;
-        format('Erro: Senha ~w inválida.~n', [Senha]),
+        writeln('Erro: Senha inválida. A senha deve conter pelo menos 6 caracteres.'),
         false % Falso para indicar que a validação falhou
     ).

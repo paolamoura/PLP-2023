@@ -1,1 +1,1 @@
-id,matrícula,data,localId,lista_espera
+id_agendamento, id_local, data, horario, id-instituicao, lista_espera
