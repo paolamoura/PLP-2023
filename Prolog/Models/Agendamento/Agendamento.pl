@@ -5,7 +5,7 @@
 % Carrega os compromissos a partir de um arquivo CSV existente
 carregar_compromissos :-
     limpar_banco_compromissos,
-    csv_read_file('agenda.csv', Rows, [functor(compromisso), arity(5)]),
+    csv_read_file('../../Data/agendamentos.csv', Rows, [functor(compromisso), arity(5)]),
     maplist(processar_compromisso, Rows).
 
 % Limpa o banco de dados de compromissos
@@ -39,7 +39,7 @@ processar_compromisso(compromisso(ID, Data, Horario, Responsavel, ListaEsperaStr
 salvar_compromissos :-
     findall(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEspera), Compromissos),
     maplist(format_lista_espera_str, Compromissos, CompromissosStr),
-    csv_write_file('agenda.csv', CompromissosStr).
+    csv_write_file('../../Data/agendamentos.csv', CompromissosStr).
 
 % Converte a lista de espera em uma string
 format_lista_espera_str(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEsperaStr)) :-
