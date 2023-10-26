@@ -1,4 +1,4 @@
-:- module(Screens, [screen/1]).
+:- module(screen, [screen/1]).
 
 
 % MAIN MENU

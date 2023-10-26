@@ -3,7 +3,7 @@
 
 % Importação Repositories
 :- use_module("../Repository/agendamentoRepository.pl").
-% :- use_module("../Repository/eventoRepository.pl").
+:- use_module("../Repository/eventoRepository.pl").
 % :- use_module("../Repository/localRepository.pl").
 % :- use_module("../Repository/usuarioRepository.pl").
 
@@ -65,7 +65,7 @@ menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
 menu(agendamentoUsuarioListarScreen) :-
-    agendamentoRepository:getAll(Agendamentos),
+    agendamentoRepository:getAllAgendamento(Agendamentos),
     parseOpcoes([1,2,3], Agendamentos, Opcoes),
     choose(Opcoes, _),
     menu(agendamentoUsuario).
@@ -90,7 +90,9 @@ menu(agendamentoInstituicao) :-
     abstract_menu(agendamentoInstituicao, "AGENDAMENTO INSTITUIÇÃO").
 
 menu(agendamentoInstListarScreen) :-
-    writeln("LISTAR Eventos!"),
+    agendamentoRepository:getAllEvento(Eventos),
+    parseOpcoes([1,2,6, 7, 8], Eventos, Opcoes),
+    choose(Opcoes, _),
     menu(agendamentoInstituicao).
 
 menu(agendamentoInstCriarScreen) :-
