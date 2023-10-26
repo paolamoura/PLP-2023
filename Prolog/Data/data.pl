@@ -85,14 +85,8 @@ getAgendamentosByMatriculaRow(FilePath, Matricula, ResultRows) :-
 
 % Pega a linha pelo IdAgendamento.
 getRowWithIdAgendamento([], _, []).
-getRowWithIdAgendamento([Row | Resto], IdAgendamento, ResultRows) :- 
-    parseRow(Row, List),
-    ( List = [_, _, _, _, IdAgendamento | _] ->
-        ResultRows = [Row | RestoResultado]
-    ; 
-        ResultRows = RestoResultado, true
-    ),
-    getRowWithIdAgendamento(Resto, IdAgendamento, RestoResultado).
+getRowWithIdAgendamento([UpdatedRow | _], IdAgendamento, UpdatedRow) :- UpdatedRow =.. [_, _, _, _, _, IdAgendamento | _], !.
+getRowWithIdAgendamento([_ | T], IdAgendamento, UpdatedRow) :- getRowWithIdAgendamento(T, IdAgendamento, UpdatedRow), !.
 
 getByIdAgendamentoRow(FilePath, IdAgendamento, ResultRow) :-
     atom_concat('Data/', FilePath, FullPath),
