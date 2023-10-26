@@ -17,4 +17,3 @@ criarEvento(Nome, IdInstituicao, IdLocal, IdAgendamento, Inscritos, Capacidade, 
         saveEvento(Evento),
         agendar_compromisso(IdLocal, Data, Horario, IdInstituicao)
         ).
-    

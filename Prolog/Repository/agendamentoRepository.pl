@@ -1,4 +1,4 @@
-:- module(agendamentoRepository, [save/1, deleteById/1, getById/2, getAll/1]).
+:- module(agendamentoRepository, [save/1, deleteById/1, getById/2, getAll/1, getAgendamentosByMatriculaRep/2]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
@@ -20,6 +20,8 @@ save(Agendamento) :-
 deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
 getById(Id, Agendamento) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Agendamento).
+
+getAgendamentosByMatriculaRep(Matricula, Agendamentos) :- path(Path), atom_number(Matricula, MatriculaInt), getAgendamentosByMatriculaRow(Path, MatriculaInt, Row), parseTable(Row, Agendamentos).
 
 getAll(Agendamentos) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Agendamentos).
 
