@@ -1,4 +1,4 @@
-:- module(localRepository, [saveLocal/1, deleteById/1, getById/2, getAllLocal/1]).
+:- module(localRepository, [saveLocal/1, deleteLocalById/1, getLocalById/2, getAllLocal/1]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
@@ -17,9 +17,9 @@ saveLocal(Local) :-
     parseList(List, Row),
     saveRow(Path, Row).
 
-deleteById(Id) :- path(Path), deleteRow(Path, Id).
+deleteLocalById(Id) :- path(Path), deleteRow(Path, Id).
 
-getById(Id, Local) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Local). 
+getLocalById(Id, Local) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Local). 
 
 getAllLocal(Locais) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Locais). 
 
