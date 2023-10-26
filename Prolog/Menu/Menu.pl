@@ -133,12 +133,21 @@ menu(agendamentoInstCriarScreen) :-
     menu(agendamentoInstituicao).
 
 menu(agendamentoInstDeletarScreen) :-
+    usuarioAtual(Usuario),
+    nth1(2, Usuario, MatriculaAtomo),
     eventoRepository:getAllEvento(Eventos),
-    parseOpcoes([1,2,6,7,8], Eventos, Opcoes),
+    parseOpcoes([1,2,4,5,6], Eventos, Opcoes),
     choose(Opcoes, Choosen),
     split_string(Choosen, ' ', ' ', ListChoosen),
     nth1(1, ListChoosen, IdEvento),
-    % deletarEvento(IdEvento)
+    nth1(3, ListChoosen, IdLocal),
+    nth1(4, ListChoosen, DataAtomo),
+    nth1(5, ListChoosen, Hora),
+    atom_concat(Hora, " horas", HorarioAtomo),
+    atom_string(DataAtomo, Data),
+    atom_string(HorarioAtomo, Horario),
+    atom_string(MatriculaAtomo, Matricula),
+    deletarEvento(IdEvento, IdLocal, Matricula, Data, Horario),
     menu(agendamentoInstituicao).
 
 menu(voltarAgendamentoInstScreen) :-
@@ -174,4 +183,4 @@ menu(voltarAgendamentoAdmScreen) :-
 
 % =========================================================
 
-:- carregar_compromissos,menu.
+:- menu.

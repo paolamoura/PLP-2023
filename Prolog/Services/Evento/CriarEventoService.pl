@@ -12,12 +12,21 @@ criarEvento(Nome, IdInstituicao, IdLocal, Matricula, Data, Horario, Evento) :-
     (agendamentoJaExiste(IdLocal, Data, Horario) ->
         writeln('Erro: Horário já está ocupado!')
     ;
-
         createEvento(Nome, IdInstituicao, IdLocal, Data, Horario, Evento),
         saveEvento(Evento),
-        agendar_compromisso(IdLocal, Data, Horario, Matricula)
+        string_para_atomo(Data, DataAtomo),
+        string_para_atomo(Horario, HorarioAtomo),
+        string_para_atomo(Matricula, MatriculaAtomo),
+        agendar_compromisso(IdLocal, DataAtomo, HorarioAtomo, MatriculaAtomo)
         ).
 
 deletarEvento(IdEvento, IdLocal, Matricula, Data, Horario) :-
-    deleteEventoById(IdEvento),
-    desalocar(IdLocal, Matricula, Data, Horario).
+    atom_number(IdEvento, IdEventoNumber),
+    deleteEventoById(IdEventoNumber),
+    string_para_atomo(Data, DataAtomo),
+    string_para_atomo(Horario, HorarioAtomo),
+    string_para_atomo(Matricula, MatriculaAtomo),
+    desalocar(IdLocal, DataAtomo, HorarioAtomo, MatriculaAtomo).
+
+string_para_atomo(String, Atomo) :-
+    atom_string(Atomo, String).
