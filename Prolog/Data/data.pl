@@ -3,7 +3,8 @@
     getByIdRow/3,
     getAllRows/2,
     updateRow/3,
-    getByMatriculaRow/3
+    getByMatriculaRow/3,
+    getLastRow/2
     ]).
 :- use_module(library(csv)).
 :- use_module("../Utils/conversors.pl").
@@ -40,6 +41,18 @@ getByIdRow(FilePath, Id, ResultRow) :-
     atom_concat('Data/', FilePath, FullPath),
     lerCSV(FullPath, File),
     getRowWithId(File, Id, ResultRow).
+
+getLastRow(FilePath, ResultRow) :-
+    atom_concat('Data/', FilePath, FullPath),
+    lerCSV(FullPath, File),
+    last_Row(File, ResultRow).
+
+% Caso base: o último elemento de uma lista com um único elemento é esse elemento.
+last_Row([Row], Row).
+
+% Caso recursivo: o último elemento de uma lista é o mesmo que o último elemento da cauda da lista.
+last_Row([_|Resto], Row) :-
+    last_Row(Resto, Row).
 
 % Pega a linha pela Matricula.
 getRowWithMatricula([], _, []).
