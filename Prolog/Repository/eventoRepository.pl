@@ -1,4 +1,4 @@
-:- module(eventoRepository, [saveEvento/1, deleteById/1, getById/2, getAllEvento/1]).
+:- module(eventoRepository, [saveEvento/1, deleteById/1, getById/2, getAllEvento/1, getByIdAgendamento/2]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
@@ -26,6 +26,8 @@ saveEvento(Evento) :-
     insertAtFirst(NovoID, Evento, List),
     parseList(List, Row),
     saveRow(Path, Row).
+
+getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamentoInt, Row), parseRow(Row, Evento).
 
 deleteById(Id) :- path(Path), deleteRow(Path, Id).
 
