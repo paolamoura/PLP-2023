@@ -117,6 +117,7 @@ menu(agendamentoInstListarScreen) :-
 menu(agendamentoInstCriarScreen) :-
     usuarioAtual(Usuario),
     nth1(2, Usuario, Matricula),
+    input(['--prompt=Nome do Evento: ', '--placeholder=Digite algo...'], NomeEvento),
     localRepository:getAllLocal(Locais),
     parseOpcoes([1, 2], Locais, Opcoes),
     choose(Opcoes, Local),
@@ -125,7 +126,7 @@ menu(agendamentoInstCriarScreen) :-
     generate_dates(15, Datas),
     choose(Datas, Data),
     choose(["8 horas", "9 horas", "14 horas", "15 horas"], Horario),
-    % criarEvento(Matricula, IdLocal, Data, Horario)
+    % criarEvento(Matricula, NomeEvento, IdLocal, Data, Horario)
     menu(agendamentoInstituicao).
 
 menu(agendamentoInstDeletarScreen) :-
