@@ -2,7 +2,8 @@
     parseRow/2,
     parseTable/2,
     parseList/2,
-    remove_nl/2
+    remove_nl/2,
+    parseOpcoes/3
     ]).
 :- use_module("../Utils/conversors.pl").
 
@@ -37,3 +38,7 @@ splitIfStringContainsComma(Element, Result) :-
 remove_nl(String, Result) :-
     atomic_list_concat(StringList, '\n', String),
     atomic_list_concat(StringList, '', Result).
+
+parseOpcoes(Indexes, Entidade, Opcoes) :- 
+    tail(Entidade, Resto),
+    normalize(Indexes, Resto, Opcoes).

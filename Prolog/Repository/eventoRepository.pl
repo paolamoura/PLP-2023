@@ -1,4 +1,4 @@
-:- module(eventoRepository, [saveEvento/1, deleteById/1, getById/2, getAllEvento/1, getByIdAgendamento/2]).
+:- module(eventoRepository, [saveEvento/1, deleteEventoById/1, getEventoById/2, getAllEvento/1, updateEvento/2, getByIdAgendamento/2]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
@@ -6,37 +6,39 @@
 % Fato dinâmico para gerar o id dos agentes
 :- dynamic id/1.
 
-% Gera um novo ID incremental
-novo_id(ID) :-
-    retract(id(IDAnterior)),
-    ID is IDAnterior + 1,
-    assert(id(ID)).
+% Fato estático para inicializar o ID ao carregar o módulo
+:- initialization(loadId).
 
-% Obtém o último ID usado
-ultimo_id(ID) :-
-    retract(id(ID)),
-    assert(id(ID)).
+loadId :-
+    path(Path),
+    getLastRow(Path, LastRow),
+    parseRow(LastRow, LastList),
+    (LastList = ['Id','Nome','Instituicao','Local','IdAgendamento','Inscritos','Capacidade','Vagas'] ->
+        assertz(id(0))
+    ;
+        primeiro_elemento(LastList, LastId),
+        assertz(id(LastId))
+    ).
+
+primeiro_elemento([Primeiro|_], Primeiro).
 
 path('eventos.csv').
 
 saveEvento(Evento) :- 
     path(Path),
-    ultimo_id(ID),
-    writeln('flag0'),
-    novo_id(NovoID),
-    writeln('flag1'),
+    id(ID),
+    NovoID is ID + 1,
     insertAtFirst(NovoID, Evento, List),
-    writeln(List),
     parseList(List, Row),
-    writeln(Row),
     saveRow(Path, Row),
-    writeln('fim').
+    retractall(id(_)),
+    assertz(id(NovoID)).
 
 getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamentoInt, Row), parseRow(Row, Evento).
 
-deleteById(Id) :- path(Path), deleteRow(Path, Id).
+deleteEventoById(Id) :- path(Path), deleteRow(Path, Id).
 
-getById(Id, Evento) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Evento).
+getEventoById(Id, Evento) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Evento).
 
 getAllEvento(Eventos) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Eventos).
 

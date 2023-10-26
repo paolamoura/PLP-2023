@@ -1,4 +1,4 @@
-:- module(LoginCadastro, [login/4, cadastro/4]).
+:- module(loginCadastro, [login/4, cadastro/4, usuarioAtual/1]).
 :- use_module('../../Models/Usuario/GetSetUsuario.pl').
 :- use_module('../../Repository/usuarioRepository.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
@@ -9,6 +9,7 @@ login(Matricula, SenhaRequest, Usuario, Tipo) :-
     sub_atom(Matricula, 0, 1, _, PrimeiroCaractereMatricula),
     (Senha = SenhaRequest ->
         getUsuarioByMatricula(Matricula, Usuario),
+        setUsuario(Usuario),
         (PrimeiroCaractereMatricula = '0' ->
             Tipo = "Instituicao"
         ; PrimeiroCaractereMatricula = '1' ->
@@ -21,7 +22,7 @@ login(Matricula, SenhaRequest, Usuario, Tipo) :-
     ; % Senha incorreta
         writeln('Erro: Senha incorreta.'),
         Tipo = "Desconhecido"
-    ).
+    ). 
 
 % Predicado auxiliar para verificar se a matrícula já está cadastrada
 matriculaJaCadastrada(Matricula) :-
@@ -43,3 +44,8 @@ cadastro(Matricula,Nome, Senha, Confirmacao) :-
             writeln('Cadastro não concluído.')
         )
     ).
+:- dynamic usuarioAtual/1.
+
+usuarioAtual(nenhum).
+
+setUsuario(Matricula) :- retract(usuarioAtual(_)), assert(usuarioAtual(Matricula)).

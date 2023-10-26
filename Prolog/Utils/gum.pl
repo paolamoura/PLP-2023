@@ -3,6 +3,7 @@
 :- use_module(library(process)).
 :- use_module('./parsers.pl').
 
+choose([], '0').
 choose(Options,Choosen) :-
     run(gum, [choose|Options], RawOutput),
     remove_nl(RawOutput, Choosen).
