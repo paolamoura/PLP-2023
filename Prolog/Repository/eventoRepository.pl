@@ -22,10 +22,15 @@ path('eventos.csv').
 saveEvento(Evento) :- 
     path(Path),
     ultimo_id(ID),
+    writeln('flag0'),
     novo_id(NovoID),
+    writeln('flag1'),
     insertAtFirst(NovoID, Evento, List),
+    writeln(List),
     parseList(List, Row),
-    saveRow(Path, Row).
+    writeln(Row),
+    saveRow(Path, Row),
+    writeln('fim').
 
 getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamentoInt, Row), parseRow(Row, Evento).
 
