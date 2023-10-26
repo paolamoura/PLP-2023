@@ -4,8 +4,7 @@
 % Importação Repositories
 :- use_module("../Repository/agendamentoRepository.pl").
 :- use_module("../Repository/eventoRepository.pl").
-% :- use_module("../Repository/localRepository.pl").
-% :- use_module("../Repository/usuarioRepository.pl").
+:- use_module("../Repository/localRepository.pl").
 
 % Importação Models
 % :- use_module("../Models/Agendamento/Agendamento.pl").
@@ -13,6 +12,9 @@
 :- use_module("../Utils/gum.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
+:- use_module("../Utils/generators.pl").
+
+% Importação Menu
 :- use_module("./States.pl").
 
 abstract_menu(CurrentScreen, Header) :-
@@ -71,11 +73,27 @@ menu(agendamentoUsuarioListarScreen) :-
     menu(agendamentoUsuario).
 
 menu(agendamentoUsuarioCriarScreen) :-
-    writeln("CRIAR Agendamento!"),
+    usuarioAtual(Usuario),
+    nth1(2, Usuario, Matricula),
+    localRepository:getAllLocal(Locais),
+    parseOpcoes([1, 2], Locais, Opcoes),
+    choose(Opcoes, Local),
+    split_string(Local, ' ', ' ', ListLocal),
+    nth1(1, ListLocal, IdLocal),
+    generate_dates(15, Datas),
+    choose(Datas, Data),
+    choose(["8 horas", "9 horas", "14 horas", "15 horas"], Horario),
+    % criarAgendamento(Matricula, IdLocal, Data, Horario)
     menu(agendamentoUsuario).
     
 menu(agendamentoUsuarioDeletarScreen) :-
-    writeln("DELETAR Agendamento!"),
+    agendamentoRepository:getAllAgendamento(Agendamentos),
+    parseOpcoes([1,2,3], Agendamentos, Opcoes),
+    choose(Opcoes, Choosen),
+    split_string(Choosen, ' ', ' ', ListChoosen),
+    nth1(1, ListChoosen, IdAgendamento),
+    writeln(IdAgendamento),
+    % deletarAgendamento(Matricula, IdAgendamento)
     menu(agendamentoUsuario).
 
 menu(voltarAgendamentoUsuarioScreen) :-
@@ -90,17 +108,32 @@ menu(agendamentoInstituicao) :-
     abstract_menu(agendamentoInstituicao, "AGENDAMENTO INSTITUIÇÃO").
 
 menu(agendamentoInstListarScreen) :-
-    agendamentoRepository:getAllEvento(Eventos),
-    parseOpcoes([1,2,6, 7, 8], Eventos, Opcoes),
+    eventoRepository:getAllEvento(Eventos),
+    parseOpcoes([1,2,6,7,8], Eventos, Opcoes),
     choose(Opcoes, _),
     menu(agendamentoInstituicao).
 
 menu(agendamentoInstCriarScreen) :-
-    writeln("CRIAR Eventos!"),
+    usuarioAtual(Usuario),
+    nth1(2, Usuario, Matricula),
+    localRepository:getAllLocal(Locais),
+    parseOpcoes([1, 2], Locais, Opcoes),
+    choose(Opcoes, Local),
+    split_string(Local, ' ', ' ', ListLocal),
+    nth1(1, ListLocal, IdLocal),
+    generate_dates(15, Datas),
+    choose(Datas, Data),
+    choose(["8 horas", "9 horas", "14 horas", "15 horas"], Horario),
+    % criarEvento(Matricula, IdLocal, Data, Horario)
     menu(agendamentoInstituicao).
-    
+
 menu(agendamentoInstDeletarScreen) :-
-    writeln("DELETAR Eventos!"),
+    eventoRepository:getAllEvento(Eventos),
+    parseOpcoes([1,2,6,7,8], Eventos, Opcoes),
+    choose(Opcoes, Choosen),
+    split_string(Choosen, ' ', ' ', ListChoosen),
+    nth1(1, ListChoosen, IdEvento),
+    % deletarEvento(IdEvento)
     menu(agendamentoInstituicao).
 
 menu(voltarAgendamentoInstScreen) :-
@@ -112,14 +145,19 @@ menu(voltarAgendamentoInstScreen) :-
 % ================= AGENDAMENTO ADMINISTRAÇÃO ====================
 
 menu(agendamentoAdm) :-
-    abstract_menu(agendamentoAdm, "AGENDAMENTO INSTITUIÇÃO").
+    abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
 menu(agendamentoAdmListarScreen) :-
-    writeln("LISTAR LOCAIS!"),
+    localRepository:getAllLocal(Locais),
+    parseOpcoes([1, 2], Locais, Opcoes),
+    choose(Opcoes, _),
     menu(agendamentoAdm).
 
 menu(agendamentoAdmCriarScreen) :-
-    writeln("CRIAR LOCAL!"),
+    input(['--prompt=Nome do Local: ', '--placeholder=Digite algo...'], NomeLocal),
+    input(['--prompt=Materiais: ', '--placeholder=Bola,Lápis,Rede...'], RawMateriais),
+    split(RawMateriais, Materiais),
+    % criarLocal(NomeLocal,Materiais)
     menu(agendamentoAdm).
     
 menu(agendamentoEstatiscaScreen) :-
@@ -127,7 +165,6 @@ menu(agendamentoEstatiscaScreen) :-
     menu(agendamentoAdm).
 
 menu(voltarAgendamentoAdmScreen) :-
-    writeln("VOLTAR!"),
     menu(main).
 
 % =========================================================
