@@ -13,7 +13,6 @@ criarEvento(Nome, IdInstituicao, IdLocal, IdAgendamento, Inscritos, Capacidade, 
         writeln('Erro: Horário já está ocupado!')
     ;
         createEvento(Nome, IdInstituicao, IdLocal, IdAgendamento, Inscritos, Capacidade, Vagas, Evento),
-        writeln(Evento),
         saveEvento(Evento),
         agendar_compromisso(IdLocal, Data, Horario, IdInstituicao)
     ).
