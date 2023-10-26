@@ -1,5 +1,6 @@
 % Importação services
 :- use_module("../Services/Usuario/LoginCadastroService.pl").
+:- use_module("../Services/Local/CriarLocalService.pl").
 
 % Importação Repositories
 :- use_module("../Repository/agendamentoRepository.pl").
@@ -157,7 +158,7 @@ menu(agendamentoAdmCriarScreen) :-
     input(['--prompt=Nome do Local: ', '--placeholder=Digite algo...'], NomeLocal),
     input(['--prompt=Materiais: ', '--placeholder=Bola,Lápis,Rede...'], RawMateriais),
     split(RawMateriais, Materiais),
-    % criarLocal(NomeLocal,Materiais)
+    criarLocal(NomeLocal,Materiais),
     menu(agendamentoAdm).
     
 menu(agendamentoEstatiscaScreen) :-
