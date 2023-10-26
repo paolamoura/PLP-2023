@@ -1,4 +1,4 @@
-:- module(CriarLocalService, [criarLocal/2]).
+:- module(criarLocalService, [criarLocal/2]).
 :- use_module('../../Models/Local/ModelLocal.pl').
 :- use_module('../../Repository/localRepository.pl').
 

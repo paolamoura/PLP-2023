@@ -34,7 +34,7 @@ saveEvento(Evento) :-
     retractall(id(_)),
     assertz(id(NovoID)).
 
-getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamentoInt, Row), parseRow(Row, Evento).
+getByIdAgendamento(IdAgendamento, Evento) :- path(Path), getByIdAgendamentoRow(Path, IdAgendamento, Row), parseRow(Row, Evento).
 
 deleteEventoById(Id) :- path(Path), deleteRow(Path, Id).
 
