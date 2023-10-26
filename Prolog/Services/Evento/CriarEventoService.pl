@@ -1,6 +1,6 @@
 :- module(CriarEventoService, [criarEvento/7]).
 :- use_module('../../Models/Evento/ModelEvento.pl').
-:- use_module('../../Data/Agendamento.pl').
+:- use_module('../../Models/Agendamento/Agendamento.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
 :- use_module('../../Repository/eventoRepository.pl').
 
