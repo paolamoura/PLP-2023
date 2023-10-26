@@ -1,8 +1,18 @@
 % Importação services
 :- use_module("../Services/Usuario/LoginCadastroService.pl").
 
+% Importação Repositories
+:- use_module("../Repository/agendamentoRepository.pl").
+% :- use_module("../Repository/eventoRepository.pl").
+% :- use_module("../Repository/localRepository.pl").
+% :- use_module("../Repository/usuarioRepository.pl").
+
+% Importação Models
+% :- use_module("../Models/Agendamento/Agendamento.pl").
 
 :- use_module("../Utils/gum.pl").
+:- use_module("../Utils/conversors.pl").
+:- use_module("../Utils/parsers.pl").
 :- use_module("./States.pl").
 
 abstract_menu(CurrentScreen, Header) :-
@@ -55,7 +65,9 @@ menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
 menu(agendamentoUsuarioListarScreen) :-
-    writeln("LISTAR Agendamento!"),
+    agendamentoRepository:getAll(Agendamentos),
+    parseOpcoes([1,2,3], Agendamentos, Opcoes),
+    choose(Opcoes, _),
     menu(agendamentoUsuario).
 
 menu(agendamentoUsuarioCriarScreen) :-
@@ -95,7 +107,7 @@ menu(voltarAgendamentoInstScreen) :-
 
 % =========================================================
 
-% ================= AGENDAMENTO INSTITUIÇÃO ====================
+% ================= AGENDAMENTO ADMINISTRAÇÃO ====================
 
 menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO INSTITUIÇÃO").
