@@ -1,4 +1,4 @@
-:- module(CriarEventoService, [criarEvento/7]).
+:- module(criarEventoService, [criarEvento/7, deletarEvento/5]).
 :- use_module('../../Models/Evento/ModelEvento.pl').
 :- use_module('../../Models/Agendamento/Agendamento.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
@@ -21,7 +21,8 @@ criarEvento(Nome, IdInstituicao, IdLocal, Matricula, Data, Horario, Evento) :-
         ).
 
 deletarEvento(IdEvento, IdLocal, Matricula, Data, Horario) :-
-    deleteEventoById(IdEvento),
+    atom_number(IdEvento, IdEventoNumber),
+    deleteEventoById(IdEventoNumber),
     string_para_atomo(Data, DataAtomo),
     string_para_atomo(Horario, HorarioAtomo),
     string_para_atomo(Matricula, MatriculaAtomo),
