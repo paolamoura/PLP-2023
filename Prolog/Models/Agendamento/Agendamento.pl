@@ -1,9 +1,10 @@
+:- module(Agendamento, [agendar_compromisso/4, salvar_compromissos/0]).
 :- use_module(library(csv)).
 :- dynamic compromisso/5.  % Definindo a estrutura da agenda: ID, Data, Horário, Responsável, Lista de Espera
 
 % Carrega os compromissos a partir de um arquivo CSV existente
 carregar_compromissos :-
-    csv_read_file('../../Data/agendamentos.csv', Rows, [functor(compromisso), arity(5)]),
+    csv_read_file('./Data/agendamentos.csv', Rows, [functor(compromisso), arity(5)]),
     maplist(format_lista_espera_lista, Rows, FormattedCompromissos),
     maplist(assert, FormattedCompromissos).
 
@@ -17,7 +18,7 @@ salvar_compromissos :-
     findall(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEspera), Compromissos),
     % Converte a lista de espera de cada compromisso em uma string
     maplist(format_lista_espera_str, Compromissos, CompromissosStr),
-    csv_write_file('../../Data/agendamentos.csv', CompromissosStr).
+    csv_write_file('./Data/agendamentos.csv', CompromissosStr).
 
 % Converte a lista de espera em uma string
 format_lista_espera_str(compromisso(ID, Data, Horario, Responsavel, ListaEspera), compromisso(ID, Data, Horario, Responsavel, ListaEsperaStr)) :-
@@ -25,10 +26,12 @@ format_lista_espera_str(compromisso(ID, Data, Horario, Responsavel, ListaEspera)
 
 % Adiciona um novo compromisso à agenda se o idLocal, data e horário não existirem
 agendar_compromisso(IDLocal, Data, Horario, Responsavel) :-
+    carregar_compromissos,
     % Verifica se o compromisso já existe para a mesma data e horário em algum local
     \+ compromisso( IDLocal, Data, Horario, _, _),
     % Adiciona o compromisso
     assert(compromisso(IDLocal, Data, Horario, Responsavel, [])),
+    salvar_compromissos,
     write('Compromisso agendado com sucesso!'), nl,!.
 
 %---------------------------------------------------------------------

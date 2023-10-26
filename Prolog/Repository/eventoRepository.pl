@@ -4,16 +4,26 @@
 :- use_module("../Utils/parsers.pl").
 
 % Fato dinâmico para gerar o id dos agentes
-id(0).
-incrementa_id :- retract(id(X)), Y is X + 1, assert(id(Y)).
 :- dynamic id/1.
+
+% Gera um novo ID incremental
+novo_id(ID) :-
+    retract(id(IDAnterior)),
+    ID is IDAnterior + 1,
+    assert(id(ID)).
+
+% Obtém o último ID usado
+ultimo_id(ID) :-
+    retract(id(ID)),
+    assert(id(ID)).
 
 path('eventos.csv').
 
 saveEvento(Evento) :- 
     path(Path),
-    id(ID), incrementa_id,
-    insertAtFirst(ID, Evento, List),
+    ultimo_id(ID),
+    novo_id(NovoID),
+    insertAtFirst(NovoID, Evento, List),
     parseList(List, Row),
     saveRow(Path, Row).
 
