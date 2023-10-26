@@ -32,10 +32,6 @@ split(String, List) :-
     atomic_list_concat(Atoms, ',', String),
     maplist(atom_string, Atoms, List).
 
-printar([]).
-printar([H|T]) :- print_sublista(H), nl, printar(T).
-print_sublista([]).
-print_sublista([H|T]) :- printar(H), print_sublista(T).
 printar(V) :- (var(V); V = ',') -> write(',') ; write(V).
 
 head([X|_], X).

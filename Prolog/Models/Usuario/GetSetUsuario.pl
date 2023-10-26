@@ -8,9 +8,9 @@ getUsuarioByMatricula(Matricula, Usuario) :-
     getByMatricula(Matricula, Usuario).
 
 getUsuarioNome(Matricula, Nome) :- 
-    getByMatricula(Matricula, Usuario),
-    Resultado = usuario(_, Nome, _, _).
+    getByMatricula(Matricula, _),
+    _ = usuario(_, Nome, _, _).
 
 getUsuarioSenha(Matricula, Senha) :- 
-    getByMatricula(Matricula, Usuario),
-    Resultado = usuario(_, _, _, Senha).
+    getByMatricula(Matricula, _),
+    _ = usuario(_, _, _, Senha).

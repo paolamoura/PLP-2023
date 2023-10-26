@@ -1,4 +1,4 @@
-:- module(LoginCadastro, [login/4, cadastro/4]).
+:- module(loginCadastro, [login/4, cadastro/4]).
 :- use_module('../../Models/Usuario/GetSetUsuario.pl').
 :- use_module('../../Repository/usuarioRepository.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
