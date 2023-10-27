@@ -6,7 +6,8 @@
     getByMatriculaRow/3,
     getLastRow/2,
     getAgendamentosByMatriculaRow/3,
-    getByAgendamentoRow/5
+    getByAgendamentoRow/5,
+    getEventosByIdInstituicaoRow/3
     ]).
 :- use_module(library(csv)).
 :- use_module("../Utils/conversors.pl").
@@ -67,7 +68,6 @@ getByMatriculaRow(FilePath, Matricula, ResultRow) :-
     lerCSV(FullPath, File),
     getRowWithMatricula(File, Matricula, ResultRow).
 
-
 getAgendamentosRowWithMatricula([], _, []).
 getAgendamentosRowWithMatricula([Row | Resto], Matricula, ResultRows) :- 
     parseRow(Row, List),
@@ -77,6 +77,23 @@ getAgendamentosRowWithMatricula([Row | Resto], Matricula, ResultRows) :-
         ResultRows = RestoResultado
     ),
     getAgendamentosRowWithMatricula(Resto, Matricula, RestoResultado).
+
+% Get pela IdInstituicao Eventos
+
+getEventosByIdInstituicaoRow(FilePath, IdInstituicao, ResultRow) :-
+    atom_concat('Data/', FilePath, FullPath),
+    lerCSV(FullPath, File),
+    getEventosRowWithIdInstituicao(File, IdInstituicao, ResultRow).
+
+getEventosRowWithIdInstituicao([], _, []).
+getEventosRowWithIdInstituicao([Row | Resto], IdInstituicao, ResultRows) :- 
+    parseRow(Row, List),
+    ( List = [_, _, IdInstituicao | _] ->
+        ResultRows = [Row | RestoResultado]
+    ; 
+        ResultRows = RestoResultado
+    ),
+    getEventosRowWithIdInstituicao(Resto, IdInstituicao, RestoResultado).
 
 getAgendamentosByMatriculaRow(FilePath, Matricula, ResultRows) :-
     atom_concat('Data/', FilePath, FullPath),

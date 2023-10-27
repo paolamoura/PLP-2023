@@ -3,7 +3,9 @@
     parseTable/2,
     parseList/2,
     remove_nl/2,
-    parseOpcoes/3
+    parseOpcoes/3,
+    parseMatricula/2,
+    parseAllMatricula/2
     ]).
 :- use_module("../Utils/conversors.pl").
 
@@ -40,5 +42,24 @@ remove_nl(String, Result) :-
     atomic_list_concat(StringList, '', Result).
 
 parseOpcoes(Indexes, Entidade, Opcoes) :- 
-    tail(Entidade, Resto),
-    normalize(Indexes, Resto, Opcoes).
+    normalize(Indexes, Entidade, Opcoes).
+
+parseAllMatricula([], []).
+parseAllMatricula([Row|Rows], [Result|Lists]) :-
+    parseRow(Row, Elements),
+    parseMatricula(Elements, Result),
+    parseAllMatricula(Rows, Lists).
+
+parseMatricula(List, Result) :-
+    drop(4, List, Suffix),
+    take(4, List, Preffix),
+    append(Preffix, [Suffix|[]], Result).
+
+    
+drop(N, List, ShorterList) :-
+    length(Prefix, N),
+    append(Prefix, ShorterList, List).
+
+take(N, _, Xs) :- N =< 0, !, N =:= 0, Xs = [].
+take(_, [], []).
+take(N, [X|Xs], [X|Ys]) :- M is N-1, take(M, Xs, Ys).

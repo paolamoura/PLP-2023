@@ -1,22 +1,21 @@
-:- module(criarAgendamentoService, [criarAgendamento/7, deletarAgendamento/5]).
+:- module(criarAgendamentoService, [criarAgendamento/4, deletarAgendamento/4]).
 :- use_module('../../Models/Evento/ModelEvento.pl').
 :- use_module('../../Models/Agendamento/Agendamento.pl').
 :- use_module('../../Models/Usuario/ModelUsuario.pl').
-:- use_module('../../Repository/agendamentoRepository.pl').
 :- use_module('../../Repository/eventoRepository.pl').
+:- use_module('../../Repository/agendamentoRepository.pl').
 
-agendamentoJaExiste(IdLocal,Data,Horario) :-
-    getByAgendamento(IdLocal,Data, Horario, Rows),
-    Rows \= [].
+criarAgendamento(Matricula, IdLocal, Data, Horario) :-
+    string_para_atomo(Data, DataAtomo),
+    string_para_atomo(Horario, HorarioAtomo),
+    string_para_atomo(Matricula, MatriculaAtomo),
+    agendar_compromisso(IdLocal, DataAtomo, HorarioAtomo, MatriculaAtomo).
 
-criarAgendamento(Nome, IdInstituicao, IdLocal, Matricula, Data, Horario, Evento) :-
-    (agendamentoJaExiste(IdLocal, Data, Horario) ->
-        % Retornar uma lista chamada ListaEspera
-    ;
-        saveAgendamento([IdLocal, Data, Horario, Matricula, ListaEspera]),
-        agendar_compromisso(IdLocal, Data, Horario, Matricula)
-        ).
+deletarAgendamento(Matricula, IdLocal, Data, Horario) :-
+    string_para_atomo(Data, DataAtomo),
+    string_para_atomo(Horario, HorarioAtomo),
+    string_para_atomo(Matricula, MatriculaAtomo),
+    desalocar(IdLocal, DataAtomo, HorarioAtomo, MatriculaAtomo).
 
-deletarAgendamento(IdEvento, IdLocal, Matricula, Data, Horario) :-
-    deleteEventoById(IdEvento),
-    desalocar(IdLocal, Matricula, Data, Horario).
+string_para_atomo(String, Atomo) :-
+    atom_string(Atomo, String).

@@ -1,4 +1,4 @@
-:- module(eventoRepository, [saveEvento/1, deleteEventoById/1, getEventoById/2, getAllEvento/1, updateEvento/2, getByAgendamento/4]).
+:- module(eventoRepository, [saveEvento/1, deleteEventoById/1, getEventoById/2, getAllEvento/1, updateEvento/2, getByAgendamento/4, getEventoByIdInstituicao/2]).
 :- use_module("../Data/data.pl").
 :- use_module("../Utils/conversors.pl").
 :- use_module("../Utils/parsers.pl").
@@ -41,5 +41,7 @@ deleteEventoById(Id) :- path(Path), deleteRow(Path, Id).
 getEventoById(Id, Evento) :- path(Path), getByIdRow(Path, Id, Row), parseRow(Row, Evento).
 
 getAllEvento(Eventos) :- path(Path), getAllRows(Path, Rows), parseTable(Rows, Eventos).
+
+getEventoByIdInstituicao(IdInstituicao, Eventos) :- path(Path), getEventosByIdInstituicaoRow(Path, IdInstituicao, Rows), parseTable(Rows, Eventos).
 
 updateEvento(Id, Evento) :- path(Path), listToRow(Evento, Row), updateRow(Path, Id, Row).
