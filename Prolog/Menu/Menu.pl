@@ -22,7 +22,7 @@
 :- use_module("./States.pl").
 
 abstract_menu(CurrentScreen, Header) :-
-    % tty_clear,
+    tty_clear,
     writeln(Header),
     choices(CurrentScreen, Choices),
     choose(Choices, Choosen),
@@ -75,9 +75,11 @@ menu(agendamentoUsuarioListarScreen) :-
     nth1(2, Usuario, MatriculaAtomo),
     atom_string(MatriculaAtomo, Matricula),
     agendamentoRepository:getAgendamentosByMatriculaRep(Matricula,Agendamentos),
+    (Agendamentos = [] -> menu(agendamentoUsuario);
     parseOpcoes([1,2,3,4], Agendamentos, Opcoes),
     choose(Opcoes, _),
-    menu(agendamentoUsuario).
+    menu(agendamentoUsuario)
+    ).
 
 menu(agendamentoUsuarioCriarScreen) :-
     usuarioAtual(Usuario),
@@ -127,9 +129,10 @@ menu(agendamentoInstListarScreen) :-
     usuarioAtual(Usuario),
     nth1(1, Usuario, IdInstituicao),
     eventoRepository:getEventoByIdInstituicao(IdInstituicao, Eventos),
+    (Eventos = [] -> menu(agendamentoInstituicao);
     parseOpcoes([1,2,4,5,6], Eventos, Opcoes),
     choose(Opcoes, _),
-    menu(agendamentoInstituicao).
+    menu(agendamentoInstituicao)).
 
 menu(agendamentoInstCriarScreen) :-
     usuarioAtual(Usuario),
@@ -152,6 +155,7 @@ menu(agendamentoInstDeletarScreen) :-
     nth1(1, Usuario, IdInstituicao),
     nth1(2, Usuario, MatriculaAtomo),
     eventoRepository:getEventoByIdInstituicao(IdInstituicao, Eventos),
+    (Eventos = [] -> menu(agendamentoInstituicao);
     parseOpcoes([1,2,4,5,6], Eventos, Opcoes),
     choose(Opcoes, Choosen),
     split_string(Choosen, ' ', ' ', ListChoosen),
@@ -164,7 +168,7 @@ menu(agendamentoInstDeletarScreen) :-
     atom_string(HorarioAtomo, Horario),
     atom_string(MatriculaAtomo, Matricula),
     deletarEvento(IdEvento, IdLocal, Matricula, Data, Horario),
-    menu(agendamentoInstituicao).
+    menu(agendamentoInstituicao)).
 
 menu(voltarAgendamentoInstScreen) :-
     writeln("VOLTAR!"),
@@ -200,3 +204,4 @@ menu(voltarAgendamentoAdmScreen) :-
 % =========================================================
 
 :- menu.
+
