@@ -2,6 +2,7 @@
 :- use_module("../Services/Usuario/LoginCadastroService.pl").
 :- use_module("../Services/Local/CriarLocalService.pl").
 :- use_module("../Services/Evento/CriarEventoService.pl").
+:- use_module("../Services/Agendamento/CriarAgendamentoService.pl").
 
 
 % Importação Repositories
@@ -70,8 +71,11 @@ menu(agendamentoAdm) :-
     abstract_menu(agendamentoAdm, "AGENDAMENTO ADMINISTRAÇÃO").
 
 menu(agendamentoUsuarioListarScreen) :-
-    agendamentoRepository:getAllAgendamento(Agendamentos),
-    parseOpcoes([1,2,3], Agendamentos, Opcoes),
+    usuarioAtual(Usuario),
+    nth1(2, Usuario, MatriculaAtomo),
+    atom_string(MatriculaAtomo, Matricula),
+    agendamentoRepository:getAgendamentosByMatriculaRep(Matricula,Agendamentos),
+    parseOpcoes([1,2,3,4], Agendamentos, Opcoes),
     choose(Opcoes, _),
     menu(agendamentoUsuario).
 
@@ -86,18 +90,27 @@ menu(agendamentoUsuarioCriarScreen) :-
     generate_dates(15, Datas),
     choose(Datas, Data),
     choose(["8 horas", "9 horas", "14 horas", "15 horas"], Horario),
-    % criarAgendamento(Matricula, IdLocal, Data, Horario)
+    criarAgendamento(Matricula, IdLocal, Data, Horario),
     menu(agendamentoUsuario).
     
 menu(agendamentoUsuarioDeletarScreen) :-
-    agendamentoRepository:getAllAgendamento(Agendamentos),
-    parseOpcoes([1,2,3], Agendamentos, Opcoes),
-    choose(Opcoes, Choosen),
-    split_string(Choosen, ' ', ' ', ListChoosen),
-    nth1(1, ListChoosen, IdAgendamento),
-    writeln(IdAgendamento),
-    % deletarAgendamento(Matricula, IdAgendamento)
-    menu(agendamentoUsuario).
+    usuarioAtual(Usuario),
+    nth1(2, Usuario, MatriculaAtomo),
+    atom_string(MatriculaAtomo, Matricula),
+    agendamentoRepository:getAgendamentosByMatriculaRep(Matricula,Agendamentos),
+    (Agendamentos = [] -> menu(agendamentoUsuario);
+        parseOpcoes([1,2,3,4], Agendamentos, Opcoes),
+        choose(Opcoes, Choosen),
+        split_string(Choosen, ' ', ' ', ListChoosen),
+        nth1(1, ListChoosen, IdLocal),
+        nth1(2, ListChoosen, DataAtomo),
+        nth1(3, ListChoosen, Hora),
+        atom_concat(Hora, " horas", HorarioAtomo),
+        atom_string(DataAtomo, Data),
+        atom_string(HorarioAtomo, Horario),
+        deletarAgendamento(Matricula, IdLocal, Data, Horario),
+        menu(agendamentoUsuario)
+    ).
 
 menu(voltarAgendamentoUsuarioScreen) :-
     writeln("VOLTAR!"),
@@ -111,8 +124,10 @@ menu(agendamentoInstituicao) :-
     abstract_menu(agendamentoInstituicao, "AGENDAMENTO INSTITUIÇÃO").
 
 menu(agendamentoInstListarScreen) :-
-    eventoRepository:getAllEvento(Eventos),
-    parseOpcoes([1,2,6,7,8], Eventos, Opcoes),
+    usuarioAtual(Usuario),
+    nth1(1, Usuario, IdInstituicao),
+    eventoRepository:getEventoByIdInstituicao(IdInstituicao, Eventos),
+    parseOpcoes([1,2,4,5,6], Eventos, Opcoes),
     choose(Opcoes, _),
     menu(agendamentoInstituicao).
 
@@ -134,8 +149,9 @@ menu(agendamentoInstCriarScreen) :-
 
 menu(agendamentoInstDeletarScreen) :-
     usuarioAtual(Usuario),
+    nth1(1, Usuario, IdInstituicao),
     nth1(2, Usuario, MatriculaAtomo),
-    eventoRepository:getAllEvento(Eventos),
+    eventoRepository:getEventoByIdInstituicao(IdInstituicao, Eventos),
     parseOpcoes([1,2,4,5,6], Eventos, Opcoes),
     choose(Opcoes, Choosen),
     split_string(Choosen, ' ', ' ', ListChoosen),
