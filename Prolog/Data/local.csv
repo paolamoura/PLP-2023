@@ -1,1 +1,4 @@
-id, local_nome, materiais
+id,local_nome,materiais
+1,Quadra Tênis,"Bola,Raquetes"
+2,Quadra Areia,"Bola,Rede"
+3,Campo de Futebol,"Bola,Redes"
